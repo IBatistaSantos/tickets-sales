@@ -7,16 +7,19 @@ import { ValidationError } from "../../../../core/domain/errors/ValidationError"
 interface OwnerProps extends BaseEntityProps {
   name: string;
   organizerId: string;
+  accessType?: string;
 }
 
 export class Owner extends BaseEntity {
   private _name: string;
   private _organizerId: string;
+  private _accessType: string;
 
   constructor(props: OwnerProps) {
     super(props);
     this._name = props.name;
     this._organizerId = props.organizerId;
+    this._accessType = props.accessType || "DIGITAL";
 
     this.validate();
   }
@@ -27,6 +30,10 @@ export class Owner extends BaseEntity {
 
   get organizerId(): string {
     return this._organizerId;
+  }
+
+  get accessType(): string {
+    return this._accessType;
   }
 
 
@@ -42,6 +49,12 @@ export class Owner extends BaseEntity {
 
     if (!this._organizerId) {
       throw new ValidationError("OrganizerId is required");
+    }
+
+    const accessTypes = ["DIGITAL", "PRESENCIAL", "HYBRID"];
+    
+    if (!accessTypes.includes(this._accessType)) {
+      throw new ValidationError("Invalid access type");
     }
   }
 

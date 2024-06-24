@@ -5,6 +5,7 @@ import { OwnerRepository } from "../repository/OwnerRepository";
 interface Input {
   name: string;
   organizerId: string;
+  accessType?: string;
 }
 
 export class CreateOwnerUseCase {
@@ -22,6 +23,7 @@ export class CreateOwnerUseCase {
     const owner = new Owner({
       name: input.name,
       organizerId: input.organizerId,
+      accessType: input.accessType,
     });
 
     await this.ownerRepository.save(owner);

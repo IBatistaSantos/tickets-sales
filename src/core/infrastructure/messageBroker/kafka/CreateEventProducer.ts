@@ -14,7 +14,8 @@ const createEvent = async () => {
   
   const message = {
     idOrganizador: randomUUID(),
-    nome: 'Evento de teste',
+    nome: 'Show de rock',
+    tipo: "PRESENCIAL"
   };
 
   await producer.send({

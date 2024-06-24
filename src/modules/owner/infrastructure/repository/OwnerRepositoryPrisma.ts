@@ -1,4 +1,4 @@
-import { PrismaClient, Status } from "@prisma/client";
+import { AccessType, PrismaClient, Status } from "@prisma/client";
 import { OwnerRepository } from "../../application/repository/OwnerRepository";
 import { Owner } from "../../domain/entity/Owner";
 
@@ -48,6 +48,7 @@ export class OwnerRepositoryPrisma implements OwnerRepository {
       data: {
         name: owner.name,
         organizerId: owner.organizerId,
+        accessType: owner.accessType as AccessType,
         createdAt: owner.createdAt,
         id: owner.id,
         status: owner.status as Status,

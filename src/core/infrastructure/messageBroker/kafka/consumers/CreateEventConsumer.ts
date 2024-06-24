@@ -4,6 +4,7 @@ import kafka from "../config";
 interface CreateEventPayload {
   idOrganizador: string;
   nome: string;
+  tipo: string;
 }
 
 const consumer = kafka.consumer({ groupId: "create-event" });
@@ -25,6 +26,7 @@ const run = async () => {
         const input = {
           organizerId: payload.idOrganizador,
           name: payload.nome,
+          accessType: payload.tipo,
         };
 
         await createOwnerUseCase.execute(input);
