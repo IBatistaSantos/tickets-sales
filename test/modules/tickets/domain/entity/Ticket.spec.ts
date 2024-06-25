@@ -1,8 +1,8 @@
 import { describe, expect, it } from "bun:test";
-import { Ticket, TicketSaleStatus } from "../../../../../src/modules/tickets/domain/entity/Ticket";
-
-
-
+import {
+  Ticket,
+  TicketSaleStatus,
+} from "@modules/tickets/domain/entity/Ticket";
 
 describe("Ticket", () => {
   it("should create a ticket", () => {
@@ -32,7 +32,7 @@ describe("Ticket", () => {
     expect(ticket.ownerId).toBe("ownerId");
     expect(ticket.price.price).toBe(100);
     expect(ticket.price.currency).toBe("BRL");
-  })
+  });
 
   it("should throw an error if price is not provided", () => {
     const ticketProps = {
@@ -40,145 +40,150 @@ describe("Ticket", () => {
       ownerId: "ownerId",
     };
 
-    const createTicket = () => new Ticket({
-      name: ticketProps.name,
-      ownerId: ticketProps.ownerId,
-      price: "" as any,
+    const createTicket = () =>
+      new Ticket({
+        name: ticketProps.name,
+        ownerId: ticketProps.ownerId,
+        price: "" as any,
+        stock: {
+          type: "UNLIMITED",
+        },
+      });
+
+    expect(createTicket).toThrowError("Price is required");
+  });
+
+  it("should throw an error if name not provided", () => {
+    const ticketProps = {
+      ownerId: "ownerId",
+      price: {
+        value: 100,
+        currency: "BRL",
+      },
+    };
+
+    const createTicket = () =>
+      new Ticket({
+        name: "",
+        ownerId: ticketProps.ownerId,
+        price: {
+          price: ticketProps.price.value,
+        },
+        stock: {
+          type: "UNLIMITED",
+        },
+      });
+
+    expect(createTicket).toThrowError("Name is required");
+  });
+
+  it("should throw an error if ownerId not provided", () => {
+    const ticketProps = {
+      name: "Ticket 1",
+      price: {
+        value: 100,
+        currency: "BRL",
+      },
+    };
+
+    const createTicket = () =>
+      new Ticket({
+        name: ticketProps.name,
+        ownerId: "",
+        price: {
+          price: ticketProps.price.value,
+        },
+        stock: {
+          type: "UNLIMITED",
+        },
+      });
+
+    expect(createTicket).toThrowError("OwnerId is required");
+  });
+
+  it("should throw an error if accessType unavailable", () => {
+    const ticketProps = {
+      name: "Ticket 1",
+      ownerId: "ownerId",
+      price: {
+        value: 100,
+        currency: "BRL",
+      },
+    };
+
+    const createTicket = () =>
+      new Ticket({
+        name: ticketProps.name,
+        ownerId: ticketProps.ownerId,
+        price: {
+          price: ticketProps.price.value,
+        },
+        accessType: "INVALID",
+        stock: {
+          type: "UNLIMITED",
+        },
+      });
+
+    expect(createTicket).toThrowError("Invalid access type");
+  });
+
+  it("should activate ticket", () => {
+    const ticket = new Ticket({
+      name: "Ticket 1",
+      ownerId: "ownerId",
+      price: {
+        price: 100,
+      },
       stock: {
         type: "UNLIMITED",
       },
     });
 
-    expect(createTicket).toThrowError("Price is required");
-  })
+    ticket.activate();
 
-  it('should throw an error if name not provided', () => {
-    const ticketProps = {
-      ownerId: 'ownerId',
-      price: {
-        value: 100,
-        currency: 'BRL'
-      }
-    }
+    expect(ticket.saleStatus).toBe(TicketSaleStatus.AVAILABLE);
+  });
 
-    const createTicket = () => new Ticket({
-      name: '',
-      ownerId: ticketProps.ownerId,
-      price: {
-        price: ticketProps.price.value
-      },
-      stock: {
-        type: 'UNLIMITED'
-      }
-    })
-
-    expect(createTicket).toThrowError('Name is required')
-  })
-
-  it('should throw an error if ownerId not provided', () => {
-    const ticketProps = {
-      name: 'Ticket 1',
-      price: {
-        value: 100,
-        currency: 'BRL'
-      }
-    }
-
-    const createTicket = () => new Ticket({
-      name: ticketProps.name,
-      ownerId: '',
-      price: {
-        price: ticketProps.price.value
-      },
-      stock: {
-        type: 'UNLIMITED'
-      }
-    })
-
-    expect(createTicket).toThrowError('OwnerId is required')
-  })
-
-  it('should throw an error if accessType unavailable', () => {
-    const ticketProps = {
-      name: 'Ticket 1',
-      ownerId: 'ownerId',
-      price: {
-        value: 100,
-        currency: 'BRL'
-      }
-    }
-
-    const createTicket = () => new Ticket({
-      name: ticketProps.name,
-      ownerId: ticketProps.ownerId,
-      price: {
-        price: ticketProps.price.value
-      },
-      accessType: 'INVALID',
-      stock: {
-        type: 'UNLIMITED'
-      }
-    })
-
-    expect(createTicket).toThrowError('Invalid access type')
-  })
-
-  it('should activate ticket', () => {
+  it("should pause ticket", () => {
     const ticket = new Ticket({
-      name: 'Ticket 1',
-      ownerId: 'ownerId',
+      name: "Ticket 1",
+      ownerId: "ownerId",
       price: {
-        price: 100
+        price: 100,
       },
       stock: {
-        type: 'UNLIMITED'
-      }
-    })
-
-    ticket.activate()
-
-    expect(ticket.saleStatus).toBe(TicketSaleStatus.AVAILABLE)
-  })
-
-  it('should pause ticket', () => {
-    const ticket = new Ticket({
-      name: 'Ticket 1',
-      ownerId: 'ownerId',
-      price: {
-        price: 100
+        type: "UNLIMITED",
       },
-      stock: {
-        type: 'UNLIMITED'
-      }
-    })
+    });
 
-    ticket.pause()
+    ticket.pause();
 
-    expect(ticket.saleStatus).toBe(TicketSaleStatus.PAUSED)
-  })
+    expect(ticket.saleStatus).toBe(TicketSaleStatus.PAUSED);
+  });
 
-  it('should throw an error if saleStatus unavailable', () => {
+  it("should throw an error if saleStatus unavailable", () => {
     const ticketProps = {
-      name: 'Ticket 1',
-      ownerId: 'ownerId',
+      name: "Ticket 1",
+      ownerId: "ownerId",
       price: {
         value: 100,
-        currency: 'BRL'
-      }
-    }
-
-    const createTicket = () => new Ticket({
-      name: ticketProps.name,
-      ownerId: ticketProps.ownerId,
-      price: {
-        price: ticketProps.price.value
+        currency: "BRL",
       },
-      saleStatus: 'INVALID' as any,
-      stock: {
-        type: 'UNLIMITED'
-      }
-    })
+    };
 
-    expect(createTicket).toThrowError('Invalid sale status')
-  })
-})
+    const createTicket = () =>
+      new Ticket({
+        name: ticketProps.name,
+        ownerId: ticketProps.ownerId,
+        price: {
+          price: ticketProps.price.value,
+        },
+        saleStatus: "INVALID" as any,
+        stock: {
+          type: "UNLIMITED",
+        },
+      });
+
+    expect(createTicket).toThrowError("Invalid sale status");
+  });
+});
