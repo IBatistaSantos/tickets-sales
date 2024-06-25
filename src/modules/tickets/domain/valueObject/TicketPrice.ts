@@ -1,25 +1,21 @@
-
 export enum Currency {
-  BRL = 'BRL',
-  USD = 'USD',
-  EUR = 'EUR',
+  BRL = "BRL",
+  USD = "USD",
+  EUR = "EUR",
 }
-
 
 export interface TicketPriceProps {
   price: number;
   currency?: Currency;
 }
 
-
-
 export class TicketPrice {
   private _price: number;
   private _currency: Currency;
 
-  constructor (props: TicketPriceProps) {
+  constructor(props: TicketPriceProps) {
     this._price = props.price;
-    this._currency = props.currency ||  Currency.BRL;
+    this._currency = props.currency || Currency.BRL;
 
     this.validate();
   }
@@ -36,7 +32,7 @@ export class TicketPrice {
     return {
       price: this.price,
       currency: this.currency as Currency,
-    }
+    };
   }
 
   private validate() {
@@ -44,7 +40,7 @@ export class TicketPrice {
       throw new Error("Price is required");
     }
 
-   const currencyValues = Object.values(Currency);
+    const currencyValues = Object.values(Currency);
 
     if (!currencyValues.includes(this._currency)) {
       throw new Error("Invalid currency");

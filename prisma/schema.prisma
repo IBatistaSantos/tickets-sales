@@ -18,6 +18,23 @@ enum Status {
   INACTIVE
 }
 
+enum TicketSalesStatus {
+  AVAILABLE
+  SOLD_OUT
+  PAUSED
+}
+
+enum Currency {
+  BRL
+  USD
+  EUR
+}
+
+enum TicketStockType {
+  UNLIMITED
+  LIMITED
+}
+
 model Owner {
   id          String     @id @default(cuid())
   name        String
@@ -26,6 +43,50 @@ model Owner {
   status      Status     @default(ACTIVE)
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
+  Ticket      Ticket[]
 
   @@map("owners")
+}
+
+model Ticket {
+  id           String            @id @default(cuid())
+  name         String
+  description  String?
+  ownerId      String
+  accessType   AccessType        @default(DIGITAL)
+  saleStatus   TicketSalesStatus @default(AVAILABLE)
+  usedQuantity Int               @default(0)
+  position     Int               @default(0)
+  hidden       Boolean           @default(false)
+  categoryId   String?
+  status       Status            @default(ACTIVE)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  priceId      String
+  stockId      String
+
+  owner Owner       @relation(fields: [ownerId], references: [id])
+  price TicketPrice @relation(fields: [priceId], references: [id])
+  stock TicketStock @relation(fields: [stockId], references: [id])
+
+  @@map("tickets")
+}
+
+model TicketPrice {
+  id       String   @id @default(cuid())
+  price    Int      @default(0)
+  currency Currency @default(BRL)
+  Ticket   Ticket[]
+
+  @@map("ticket_prices")
+}
+
+model TicketStock {
+  id        String          @id @default(cuid())
+  total     Int             @default(0)
+  available Int             @default(0)
+  type      TicketStockType @default(UNLIMITED)
+  Ticket    Ticket[]
+
+  @@map("ticket_stocks")
 }

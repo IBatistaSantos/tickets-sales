@@ -1,7 +1,6 @@
 import { ValidationError } from "../../../../core/domain/errors/ValidationError";
 
-
-type TicketStockType = "UNLIMITED" | "LIMITED";
+export type TicketStockType = "UNLIMITED" | "LIMITED";
 
 export interface TicketStockProps {
   total?: number;
@@ -9,13 +8,12 @@ export interface TicketStockProps {
   type: TicketStockType;
 }
 
-
 export class TicketStock {
   private _total: number;
   private _available: number;
   private _type: TicketStockType;
 
-  constructor (props: TicketStockProps) {
+  constructor(props: TicketStockProps) {
     this._total = props.total || 0;
     this._available = props.available || this._total;
     this._type = props.type;
@@ -39,8 +37,8 @@ export class TicketStock {
     return {
       total: this.total,
       type: this._type,
-      available: this.available
-    }
+      available: this.available,
+    };
   }
 
   private validate() {
