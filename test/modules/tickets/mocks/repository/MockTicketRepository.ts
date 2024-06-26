@@ -3,6 +3,7 @@ import { TicketRepository } from "../../../../../src/modules/tickets/application
 import { Ticket } from "../../../../../src/modules/tickets/domain/entity/Ticket";
 
 export class MockTicketRepository implements TicketRepository {
+  
   private tickets: Ticket[] = [];
 
   async findAll(ownerId: string): Promise<Ticket[]> {
@@ -11,10 +12,18 @@ export class MockTicketRepository implements TicketRepository {
     );
   }
 
-  findById(ticketId: string, ownerId: string): Promise<Ticket | null> {
+  findOne(query: any): Promise<Ticket | null> {
     return Promise.resolve(
       this.tickets.find(
-        (ticket) => ticket.id === ticketId && ticket.ownerId === ownerId
+        (ticket) => ticket.id === query.id && ticket.ownerId === query.ownerId
+      ) || null
+    );
+  }
+
+  findById(ticketId: string): Promise<Ticket | null> {
+    return Promise.resolve(
+      this.tickets.find(
+        (ticket) => ticket.id === ticketId
       ) || null
     );
   }

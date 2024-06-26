@@ -11,12 +11,50 @@ export class PrismaTicketRepository implements TicketRepository {
   constructor() {
     this.client = new PrismaClient();
   }
+  async findOne(query: any): Promise<Ticket | null> {
+     const ticket = await this.client.ticket.findFirst({
+      where: {
+        ...query,
+        status: "ACTIVE",
+      },
+      include: {
+        price: true,
+        stock: true,
+      },
+     })
+     
+      if (!ticket) return null;
 
-  async findById(ticketId: string, ownerId: string): Promise<Ticket | null> {
+    return new Ticket({
+      id: ticket.id,
+      name: ticket.name,
+      description: ticket.description || "",
+      ownerId: ticket.ownerId,
+      price: {
+        price: ticket.price.price,
+        currency: ticket.price.currency as Currency,
+      },
+      stock: {
+        total: ticket.stock.total,
+        type: ticket.stock.type,
+        available: ticket.stock.available,
+      },
+      saleStatus: ticket.saleStatus as TicketSaleStatus,
+      accessType: ticket.accessType,
+      status: ticket.status,
+      createdAt: ticket.createdAt,
+      usedQuantity: ticket.usedQuantity,
+      position: ticket.position,
+      hidden: ticket.hidden,
+      categoryId: ticket.categoryId || "",
+    })
+
+  }
+
+  async findById(ticketId: string): Promise<Ticket | null> {
     const ticket = await this.client.ticket.findFirst({
       where: {
         id: ticketId,
-        ownerId,
         status: "ACTIVE",
       },
       include: {

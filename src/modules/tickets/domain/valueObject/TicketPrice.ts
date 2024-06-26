@@ -28,6 +28,13 @@ export class TicketPrice {
     return this._currency;
   }
 
+  update(props: TicketPriceProps) {
+    this._price = props.price;
+    this._currency = props.currency || Currency.BRL;
+
+    this.validate();
+  }
+
   toJSON(): TicketPriceProps {
     return {
       price: this.price,

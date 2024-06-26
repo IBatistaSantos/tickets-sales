@@ -6,7 +6,7 @@ export class DeleteTicketUseCase {
   constructor(private repository: TicketRepository) {}
 
   async execute(ticketId: string, ownerId: string) {
-    const ticket = await this.repository.findById(ticketId, ownerId);
+    const ticket = await this.repository.findOne({ id: ticketId, ownerId });
 
     if (!ticket) {
       throw new TicketNotFoundException();
@@ -16,7 +16,7 @@ export class DeleteTicketUseCase {
       throw new TicketAlreadyUsedQuantity();
     }
 
-    ticket.deactivate()
+    ticket.deactivate();
     await this.repository.update(ticket);
   }
 }

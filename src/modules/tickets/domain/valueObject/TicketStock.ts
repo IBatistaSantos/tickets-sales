@@ -33,6 +33,30 @@ export class TicketStock {
     return this._type;
   }
 
+  update(
+    props: Partial<Omit<TicketStockProps, "available">>,
+    quantitySold: number
+  ) {
+    if (props.type && props.type !== this._type) {
+      if (props.type === "UNLIMITED") {
+        this._total = 0;
+        this._available = 0;
+      }
+      this._type = props.type;
+    }
+
+    const totalCurrent = this._total;
+    this._total = props.total || totalCurrent;
+
+    if (this._total < quantitySold) {
+      throw new ValidationError("Total must be greater than quantity sold");
+    }
+
+    this._available = this._total - quantitySold || 0;
+
+    this.validate();
+  }
+
   toJSON(): TicketStockProps {
     return {
       total: this.total,

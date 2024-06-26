@@ -73,11 +73,11 @@ export class Ticket extends BaseEntity {
   }
 
   get price(): TicketPrice {
-    return this._price
+    return this._price;
   }
 
   get stock(): TicketStock {
-    return this._stock
+    return this._stock;
   }
 
   get saleStatus(): TicketSaleStatus {
@@ -103,13 +103,16 @@ export class Ticket extends BaseEntity {
   update(props: Partial<TicketProps>) {
     this._name = props.name || this._name;
     this._description = props.description || this._description;
-    this._price = new TicketPrice(props.price || this._price.toJSON());
-    this._stock = new TicketStock(props.stock || this._stock.toJSON());
-    this._saleStatus = props.saleStatus || this._saleStatus;
-    this._usedQuantity = props.usedQuantity || this._usedQuantity;
-    this._position = props.position || this._position;
-    this._hidden = props.hidden || this._hidden;
-    this._categoryId = props.categoryId || this._categoryId;
+
+    if (props.price) {
+      this._price.update(props.price);
+    }
+
+    if (props.stock) {
+      this._stock.update(props.stock, this._usedQuantity);
+    }
+
+    this.validate();
   }
 
   toJSON() {
