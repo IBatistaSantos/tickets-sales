@@ -90,3 +90,51 @@ model TicketStock {
 
   @@map("ticket_stocks")
 }
+
+model Cart {
+  id            String         @id @default(uuid())
+  ownerId       String
+  status        Status         @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  items         CartItem[]     @relation("CartItems")
+  customerEmail String?
+  customerName  String?
+  marketingData MarketingData?
+
+  @@map("carts")
+}
+
+model CartItem {
+  id       String @id @default(uuid())
+  cartId   String
+  ticketId String
+  quantity Int
+  users    User[] @relation("ItemUsers")
+  cart     Cart   @relation(fields: [cartId], references: [id], name: "CartItems")
+
+  @@map("cart_items")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  itemId    String
+  name      String
+  email     String
+  infoExtra Json
+  item      CartItem @relation(fields: [itemId], references: [id], name: "ItemUsers")
+
+  @@map("cart_users")
+}
+
+model MarketingData {
+  id          String  @id @default(uuid())
+  cartId      String  @unique
+  utmMedium   String?
+  utmSource   String?
+  utmCampaign String?
+  utmContent  String?
+  cart        Cart    @relation(fields: [cartId], references: [id])
+
+  @@map("marketing_data")
+}

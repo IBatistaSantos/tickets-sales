@@ -100,6 +100,8 @@ export class Ticket extends BaseEntity {
     return this._categoryId;
   }
 
+  
+
   update(props: Partial<TicketProps>) {
     this._name = props.name || this._name;
     this._description = props.description || this._description;

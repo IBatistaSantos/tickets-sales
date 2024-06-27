@@ -33,6 +33,18 @@ export class TicketStock {
     return this._type;
   }
 
+  validateStock(quantity: number) {
+    if (this._type === "UNLIMITED") {
+      return true;
+    }
+
+    if (quantity > this._available) {
+      return false;
+    }
+
+    return true;
+  }
+
   update(
     props: Partial<Omit<TicketStockProps, "available">>,
     quantitySold: number
