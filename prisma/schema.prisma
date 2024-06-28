@@ -109,6 +109,8 @@ model CartItem {
   id       String @id @default(uuid())
   cartId   String
   ticketId String
+  price    Int    @default(0)
+  discount Int    @default(0)
   quantity Int
   users    User[] @relation("ItemUsers")
   cart     Cart   @relation(fields: [cartId], references: [id], name: "CartItems")

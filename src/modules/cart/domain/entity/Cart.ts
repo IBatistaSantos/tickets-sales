@@ -9,12 +9,18 @@ interface CartTotal {
   amount: number;
 }
 
+export interface CartUpdateData {
+  items?: CartItemProps[];
+  customer?: CartCustomerProps;
+  marketingData?: Record<string, any>;
+}
+
 interface CartProps extends BaseEntityProps {
   ownerId: string;
   items: CartItemProps[];
   customer?: CartCustomerProps;
   total?: CartTotal;
-  marketingData?: Record<string, string>;
+  marketingData?: Record<string, any>;
 }
 
 export class Cart extends BaseEntity {
@@ -22,7 +28,7 @@ export class Cart extends BaseEntity {
   private _items: CartItem[];
   private _customer: CartCustomer | null;
   private _total: CartTotal;
-  private _marketingData: Record<string, string> = {};
+  private _marketingData: Record<string, any> = {};
 
   constructor(props: CartProps) {
     super(props);
@@ -53,6 +59,24 @@ export class Cart extends BaseEntity {
 
   get marketingData() {
     return this._marketingData;
+  }
+
+  update(data: Omit<Partial<CartUpdateData>, "items">) {
+    if (data.customer) {
+      this._customer = new CartCustomer(data.customer);
+    }
+
+    if (data.marketingData) {
+      this._marketingData = data.marketingData;
+    }
+
+    this.validate();
+  }
+
+  updateItems(items: CartItem[]) {
+    this._items = items;
+    this._total = this.calculateTotal();
+    this.validate();
   }
 
   private calculateTotal() {

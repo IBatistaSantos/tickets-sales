@@ -11,6 +11,15 @@ export class MockCartRepository implements CartRepository {
     this.carts.push(cart);
   }
 
+  async update(cart: Cart): Promise<void> {
+    const index = this.carts.findIndex((c) => c.id === cart.id);
+    this.carts[index] = cart;
+  }
+
+  async findById(cartId: string): Promise<Cart | null> {
+    return this.carts.find((cart) => cart.id === cartId) || null;
+  }
+
   async getOwnerId(ownerId: string): Promise<Owner | null> {
     return new Owner({
       name: faker.person.fullName(),
