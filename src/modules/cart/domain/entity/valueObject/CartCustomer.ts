@@ -1,3 +1,5 @@
+import { Email } from "@core/domain/entity/Email";
+
 export interface CartCustomerProps {
   name: string;
   email: string;
@@ -8,7 +10,7 @@ export class CartCustomer {
   private _email: string;
 
   constructor(props: CartCustomerProps) {
-    this._email = props.email;
+    this._email = new Email(props.email).value;
     this._name = props.name;
   }
 

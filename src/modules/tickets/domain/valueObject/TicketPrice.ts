@@ -1,3 +1,5 @@
+import { ValidationError } from "@core/domain/errors/ValidationError";
+
 export enum Currency {
   BRL = "BRL",
   USD = "USD",
@@ -44,17 +46,17 @@ export class TicketPrice {
 
   private validate() {
     if (!this._price) {
-      throw new Error("Price is required");
+      throw new ValidationError("Price is required");
     }
 
     const currencyValues = Object.values(Currency);
 
     if (!currencyValues.includes(this._currency)) {
-      throw new Error("Invalid currency");
+      throw new ValidationError("Invalid currency");
     }
 
     if (this._price < 0) {
-      throw new Error("Price must be greater than 0");
+      throw new ValidationError("Price must be greater than 0");
     }
   }
 }
