@@ -20,9 +20,8 @@ describe("UpdateCart", () => {
       ownerId: faker.database.mongodbObjectId(),
       items: [
         {
-          price: 1,
           quantity: 1,
-          ticketId: faker.database.mongodbObjectId(),
+          itemId: faker.database.mongodbObjectId(),
         },
       ],
     });
@@ -33,7 +32,7 @@ describe("UpdateCart", () => {
     const data = {
       items: [
         {
-          ticketId: "1",
+          itemId: "1",
           quantity: 1,
           users: [
             {
@@ -57,7 +56,7 @@ describe("UpdateCart", () => {
     const data = {
       items: [
         {
-          ticketId: "1",
+          itemId: "1",
           quantity: 1,
           users: [
             {

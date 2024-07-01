@@ -9,7 +9,7 @@ import { OwnerNotFoundException } from "@modules/owner/domain/errors/OwnerNotFou
 import { CartRepository } from "../repository/CartRepository";
 
 interface InputItem {
-  ticketId: string;
+  itemId: string;
   quantity: number;
   users?: CartUser[];
 }
@@ -30,7 +30,7 @@ export class CreateCartUseCase {
     const owner = await this.cartRepository.getOwnerId(ownerId);
     if (!owner) throw new OwnerNotFoundException();
 
-    const ticketIds = items.map((item) => item.ticketId);
+    const ticketIds = items.map((item) => item.itemId);
     if (!ticketIds.length) throw new ItemEmptyException();
 
     const listTickets = await this.cartRepository.getTicketsByIds(ticketIds);

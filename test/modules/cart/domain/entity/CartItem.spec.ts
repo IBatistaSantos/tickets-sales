@@ -9,49 +9,27 @@ import { beforeEach, describe, expect, it } from "bun:test";
 describe("CartItem", () => {
   it("should create a valid cart item", () => {
     const cartItem = new CartItem({
-      price: 100,
       quantity: 2,
-      ticketId: faker.database.mongodbObjectId(),
+      itemId: faker.database.mongodbObjectId(),
     });
 
-    expect(cartItem.price).toBe(100);
     expect(cartItem.quantity).toBe(2);
   });
 
-  it("should calculate the total price of the cart item", () => {
-    const cartItem = new CartItem({
-      price: 100,
-      quantity: 2,
-      ticketId: faker.database.mongodbObjectId(),
-    });
 
-    expect(cartItem.total).toBe(200);
-  });
-
-  it("should throw an error if ticketId is not provided", () => {
+  it("should throw an error if itemId is not provided", () => {
     expect(
-      () => new CartItem({ price: 100, quantity: 2, ticketId: "" })
+      () => new CartItem({ quantity: 2, itemId: "" })
     ).toThrowError();
   });
 
-  it("should throw an error if price is less than 0", () => {
-    expect(
-      () =>
-        new CartItem({
-          price: -1,
-          quantity: 2,
-          ticketId: faker.database.mongodbObjectId(),
-        })
-    ).toThrowError();
-  });
 
   it("should throw an error if quantity is less than 0", () => {
     expect(
       () =>
         new CartItem({
-          price: 100,
           quantity: -1,
-          ticketId: faker.database.mongodbObjectId(),
+          itemId: faker.database.mongodbObjectId(),
         })
     ).toThrowError();
   });
@@ -60,9 +38,8 @@ describe("CartItem", () => {
     expect(
       () =>
         new CartItem({
-          price: 100,
           quantity: 0,
-          ticketId: faker.database.mongodbObjectId(),
+          itemId: faker.database.mongodbObjectId(),
         })
     ).toThrowError();
   });
@@ -71,9 +48,8 @@ describe("CartItem", () => {
     expect(
       () =>
         new CartItem({
-          price: 100,
           quantity: 1,
-          ticketId: faker.database.mongodbObjectId(),
+          itemId: faker.database.mongodbObjectId(),
           users: [
             { name: "John Doe", email: faker.internet.email() },
             { name: "Jane Doe", email: faker.internet.email() },
@@ -115,30 +91,25 @@ describe("CartItem", () => {
     it("should create many cart items", () => {
       const items = [
         {
-          price: 100,
           quantity: 2,
-          ticketId: tickets[0].id,
+          itemId: tickets[0].id,
         },
         {
-          price: 200,
           quantity: 1,
-          ticketId: tickets[1].id,
+          itemId: tickets[1].id,
         },
       ];
 
       const cartItems = CartItem.createMany(items, tickets);
 
       expect(cartItems.length).toBe(2);
-      expect(cartItems[0].price).toBe(100);
-      expect(cartItems[1].price).toBe(200);
     });
 
     it("should throw an error if ticket is not found", () => {
       const items = [
         {
-          price: 100,
           quantity: 2,
-          ticketId: faker.database.mongodbObjectId(),
+          itemId: faker.database.mongodbObjectId(),
         },
       ];
 
@@ -148,9 +119,8 @@ describe("CartItem", () => {
     it("should throw an error if ticket has no stock", () => {
       const items = [
         {
-          price: 100,
           quantity: 4,
-          ticketId: tickets[0].id,
+          itemId: tickets[0].id,
         },
       ];
 
@@ -173,9 +143,8 @@ describe("CartItem", () => {
       });
       const items = [
         {
-          price: 100,
           quantity: 2,
-          ticketId: ticket.id,
+          itemId: ticket.id,
         },
       ];
 

@@ -1,16 +1,21 @@
 import { faker } from "@faker-js/faker";
+import { CartItem } from "@modules/cart/domain/entity/valueObject/CarItem";
 import { Order, OrderStatus } from "@modules/orders/domain/entity/Order";
+import { Ticket } from "@modules/tickets/domain/entity/Ticket";
+import { Currency } from "@modules/tickets/domain/valueObject/TicketPrice";
 import { describe, expect, it } from "bun:test";
 
 describe("Order", () => {
   it("should create an order", () => {
     const order = new Order({
+      ownerId: faker.string.uuid(),
+      cartId: faker.string.uuid(),
       billingAddress: {
         city: faker.location.city(),
         neighborhood: "Centro",
         state: faker.location.state(),
         street: faker.location.street(),
-        zipcode: faker.location.zipCode(),
+        zipCode: faker.location.zipCode(),
       },
       customer: {
         document: "12345678909",
@@ -21,6 +26,7 @@ describe("Order", () => {
       },
       items: [
         {
+          itemId: faker.string.uuid(),
           price: 100,
           quantity: 1,
           name: "Product 1",
@@ -51,12 +57,14 @@ describe("Order", () => {
 
   it("should calculate total", () => {
     const order = new Order({
+      ownerId: faker.string.uuid(),
+      cartId: faker.string.uuid(),
       billingAddress: {
         city: faker.location.city(),
         neighborhood: "Centro",
         state: faker.location.state(),
         street: faker.location.street(),
-        zipcode: faker.location.zipCode(),
+        zipCode: faker.location.zipCode(),
       },
       customer: {
         document: "12345678909",
@@ -67,6 +75,7 @@ describe("Order", () => {
       },
       items: [
         {
+          itemId: faker.string.uuid(),
           price: 100,
           quantity: 1,
           name: "Product 1",
@@ -78,6 +87,7 @@ describe("Order", () => {
           ],
         },
         {
+          itemId: faker.string.uuid(),
           price: 200,
           quantity: 2,
           name: "Product 2",
@@ -109,12 +119,14 @@ describe("Order", () => {
 
   it("should return if order is free", () => {
     const order = new Order({
+      ownerId: faker.string.uuid(),
+      cartId: faker.string.uuid(),
       billingAddress: {
         city: faker.location.city(),
         neighborhood: "Centro",
         state: faker.location.state(),
         street: faker.location.street(),
-        zipcode: faker.location.zipCode(),
+        zipCode: faker.location.zipCode(),
       },
       customer: {
         document: "12345678909",
@@ -125,6 +137,7 @@ describe("Order", () => {
       },
       items: [
         {
+          itemId: faker.string.uuid(),
           price: 0,
           quantity: 1,
           name: "Product 1",
@@ -149,12 +162,14 @@ describe("Order", () => {
   it("should throw error if order is empty", () => {
     expect(() => {
       new Order({
+        ownerId: faker.string.uuid(),
+        cartId: faker.string.uuid(),
         billingAddress: {
           city: faker.location.city(),
           neighborhood: "Centro",
           state: faker.location.state(),
           street: faker.location.street(),
-          zipcode: faker.location.zipCode(),
+          zipCode: faker.location.zipCode(),
         },
         customer: {
           document: "12345678909",
@@ -175,12 +190,14 @@ describe("Order", () => {
 
   it("should return payment free if order is free", () => {
     const order = new Order({
+      ownerId: faker.string.uuid(),
+      cartId: faker.string.uuid(),
       billingAddress: {
         city: faker.location.city(),
         neighborhood: "Centro",
         state: faker.location.state(),
         street: faker.location.street(),
-        zipcode: faker.location.zipCode(),
+        zipCode: faker.location.zipCode(),
       },
       customer: {
         document: "12345678909",
@@ -191,6 +208,7 @@ describe("Order", () => {
       },
       items: [
         {
+          itemId: faker.string.uuid(),
           price: 0,
           quantity: 1,
           name: "Product 1",
@@ -218,12 +236,14 @@ describe("Order", () => {
 
   it("should return status order paid if order is free", () => {
     const order = new Order({
+      ownerId: faker.string.uuid(),
+      cartId: faker.string.uuid(),
       billingAddress: {
         city: faker.location.city(),
         neighborhood: "Centro",
         state: faker.location.state(),
         street: faker.location.street(),
-        zipcode: faker.location.zipCode(),
+        zipCode: faker.location.zipCode(),
       },
       customer: {
         document: "12345678909",
@@ -234,6 +254,7 @@ describe("Order", () => {
       },
       items: [
         {
+          itemId: faker.string.uuid(),
           price: 0,
           quantity: 1,
           name: "Product 1",
@@ -258,12 +279,14 @@ describe("Order", () => {
   it("should throw error if order is free and has not payment", () => {
     expect(() => {
       new Order({
+        ownerId: faker.string.uuid(),
+        cartId: faker.string.uuid(),
         billingAddress: {
           city: faker.location.city(),
           neighborhood: "Centro",
           state: faker.location.state(),
           street: faker.location.street(),
-          zipcode: faker.location.zipCode(),
+          zipCode: faker.location.zipCode(),
         },
         customer: {
           document: "12345678909",
@@ -274,6 +297,7 @@ describe("Order", () => {
         },
         items: [
           {
+            itemId: faker.string.uuid(),
             price: 10,
             quantity: 1,
             name: "Product 1",
@@ -288,5 +312,77 @@ describe("Order", () => {
         payment: undefined,
       });
     }).toThrowError("Order must have a payment data");
+  });
+
+  describe("createItems", () => {
+    it("should create items", () => {
+      const cartItem: CartItem[] = [
+        new CartItem({
+          itemId: "1",
+          quantity: 1,
+          users: [
+            {
+              email: faker.internet.email(),
+              name: faker.person.fullName(),
+            },
+          ],
+        }),
+      ];
+      const items = Order.createItems(
+        cartItem,
+        new Map([
+          [
+            "1",
+            new Ticket({
+              id: "1",
+              name: "Product 1",
+              price: {
+                price: 100,
+                currency: Currency.BRL,
+              },
+              ownerId: "1",
+              stock: {
+                type: "LIMITED",
+                total: 2,
+              },
+            }),
+          ],
+        ])
+      );
+
+      expect(items).toEqual([
+        {
+          itemId: expect.any(String),
+          price: 100,
+          quantity: 1,
+          name: "Product 1",
+          users: [
+            {
+              email: expect.any(String),
+              name: expect.any(String),
+              infoExtra: undefined,
+            },
+          ],
+        },
+      ]);
+    });
+
+    it("should throw error if ticket not found", () => {
+      expect(() => {
+        const cartItem: CartItem[] = [
+          new CartItem({
+            itemId: "1",
+            quantity: 1,
+            users: [
+              {
+                email: faker.internet.email(),
+                name: faker.person.fullName(),
+              },
+            ],
+          }),
+        ];
+        Order.createItems(cartItem, new Map());
+      }).toThrowError("Ticket with id 1 not found");
+    });
   });
 });

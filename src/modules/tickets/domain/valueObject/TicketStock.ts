@@ -34,15 +34,26 @@ export class TicketStock {
   }
 
   validateStock(quantity: number) {
+    if (quantity <= 0) {
+      throw new ValidationError("Quantity must be greater than zero");
+    }
+
     if (this._type === "UNLIMITED") {
       return true;
     }
 
-    if (quantity > this._available) {
-      return false;
+    console.log({ quantity, available: this._available })
+    console.log(quantity < this._available)
+    return quantity < this._available;
+  }
+
+  decreaseStock(quantity: number) {
+    if (this._type === "UNLIMITED") {
+      return;
     }
 
-    return true;
+    this._available -= quantity;
+    this.validate();
   }
 
   update(

@@ -7,7 +7,7 @@ export interface BillingAddressProps {
   neighborhood: string;
   city: string;
   state: string;
-  zipcode: string;
+  zipCode: string;
   country?: string;
 }
 
@@ -18,7 +18,7 @@ export class BillingAddress {
   private _neighborhood: string;
   private _city: string;
   private _state: string;
-  private _zipcode: string;
+  private _zipCode: string;
   private _country: string;
 
   constructor(props: BillingAddressProps) {
@@ -28,7 +28,7 @@ export class BillingAddress {
     this._neighborhood = props.neighborhood;
     this._city = props.city;
     this._state = props.state;
-    this._zipcode = props.zipcode;
+    this._zipCode = props.zipCode;
     this._country = props.country || "BR";
 
     this.validate();
@@ -58,8 +58,8 @@ export class BillingAddress {
     return this._state;
   }
 
-  get zipcode() {
-    return this._zipcode;
+  get zipCode() {
+    return this._zipCode;
   }
 
   get country() {
@@ -67,7 +67,7 @@ export class BillingAddress {
   }
 
   get address() {
-    return `${this._street}, ${this._number} - ${this._neighborhood}, ${this._city} - ${this._state}, ${this._zipcode}, ${this._country}`;
+    return `${this._street}, ${this._number} - ${this._neighborhood}, ${this._city} - ${this._state}, ${this._zipCode}, ${this._country}`;
   }
 
   private validate() {
@@ -87,8 +87,8 @@ export class BillingAddress {
       throw new ValidationError("State is required");
     }
 
-    if (!this._zipcode) {
-      throw new ValidationError("Zipcode is required");
+    if (!this._zipCode) {
+      throw new ValidationError("ZipCode is required");
     }
 
     if (!this._country) {
@@ -104,7 +104,7 @@ export class BillingAddress {
       neighborhood: this._neighborhood,
       city: this._city,
       state: this._state,
-      zipcode: this._zipcode,
+      zipCode: this._zipCode,
       country: this._country,
     };
   }

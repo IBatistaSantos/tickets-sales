@@ -18,7 +18,7 @@ interface Input {
   };
   stock: {
     type: TicketStockType;
-    quantity: number;
+    total: number;
   };
   description?: string;
   accessType?: string;
@@ -44,14 +44,14 @@ export class CreateTicketController extends BaseController {
         }),
         stock: z.object({
           type: z.enum(["LIMITED", "UNLIMITED"]).optional(),
-          quantity: z.number().min(0).optional(),
+          total: z.number().min(0).optional(),
         }),
         description: z.string().optional(),
         accessType: z.string().optional(),
         categoryId: z.string().optional(),
       })
       .refine(() => {
-        if (input.stock.type === "LIMITED" && !input.stock.quantity) {
+        if (input.stock.type === "LIMITED" && !input.stock.total) {
           throw new ValidationError("Stock quantity is required for limited stock");
         }
         return true;

@@ -5,6 +5,7 @@ import { describe, expect, it } from "bun:test";
 describe("OrderItem", () => {
   it("should create an order item", () => {
     const orderItem = new OrderItem({
+      itemId: faker.string.uuid(),
       name: "Product 1",
       price: 100,
       quantity: 1,
@@ -18,6 +19,7 @@ describe("OrderItem", () => {
 
     expect(orderItem).toBeInstanceOf(OrderItem);
     expect(orderItem.toJSON()).toEqual({
+      itemId: expect.any(String),
       name: "Product 1",
       price: 100,
       quantity: 1,
@@ -33,6 +35,7 @@ describe("OrderItem", () => {
   it("should throw an error if name is not provided", () => {
     expect(() => {
       new OrderItem({
+        itemId: faker.string.uuid(),
         name: "",
         price: 100,
         quantity: 1,
@@ -49,6 +52,7 @@ describe("OrderItem", () => {
   it("should throw an error if quantity is not provided", () => {
     expect(() => {
       new OrderItem({
+        itemId: faker.string.uuid(),
         name: "Product 1",
         price: 100,
         quantity: 0,
@@ -65,6 +69,7 @@ describe("OrderItem", () => {
   it("should throw an error if price is not greater than 0", () => {
     expect(() => {
       new OrderItem({
+        itemId: faker.string.uuid(),
         name: "Product 1",
         price: -1,
         quantity: 1,
@@ -81,6 +86,7 @@ describe("OrderItem", () => {
   it("should throw an error if users is not provided", () => {
     expect(() => {
       new OrderItem({
+        itemId: faker.string.uuid(),
         name: "Product 1",
         price: 100,
         quantity: 1,
@@ -92,6 +98,7 @@ describe("OrderItem", () => {
   it("should throw an error if users length different quantity ticket", () => {
     expect(() => {
       new OrderItem({
+        itemId: faker.string.uuid(),
         name: "Product 1",
         price: 100,
         quantity: 1,

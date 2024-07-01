@@ -10,7 +10,7 @@ import { ValidationError } from "@core/domain/errors/ValidationError";
 import { UpdateCartUseCase } from "../useCases/UpdateCart";
 
 interface ItemInput {
-  ticketId: string;
+  itemId: string;
   quantity: number;
   users?: CartUser[];
 }
@@ -36,7 +36,7 @@ export class UpdateCartController extends BaseController {
         cartId: z.string(),
         items: z.array(
           z.object({
-            ticketId: z.string(),
+            itemId: z.string(),
             quantity: z
               .number()
               .min(1, { message: "Quantity must be greater than 0" }),

@@ -6,11 +6,6 @@ import {
 import { CartUser } from "@modules/cart/domain/entity/valueObject/CarItem";
 import { FindCartUseCase } from "../useCases/FindCart";
 
-interface ItemInput {
-  ticketId: string;
-  quantity: number;
-  users?: CartUser[];
-}
 
 interface Input {
  cartId: string;

@@ -30,6 +30,11 @@ enum Currency {
   EUR
 }
 
+enum CartStatus {
+  OPEN
+  CHECKED_OUT
+}
+
 enum TicketStockType {
   UNLIMITED
   LIMITED
@@ -95,6 +100,7 @@ model Cart {
   id            String         @id @default(uuid())
   ownerId       String
   status        Status         @default(ACTIVE)
+  statusCart    CartStatus     @default(OPEN)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   items         CartItem[]     @relation("CartItems")
@@ -108,9 +114,7 @@ model Cart {
 model CartItem {
   id       String @id @default(uuid())
   cartId   String
-  ticketId String
-  price    Int    @default(0)
-  discount Int    @default(0)
+  itemId   String
   quantity Int
   users    User[] @relation("ItemUsers")
   cart     Cart   @relation(fields: [cartId], references: [id], name: "CartItems")
@@ -137,6 +141,80 @@ model MarketingData {
   utmCampaign String?
   utmContent  String?
   cart        Cart    @relation(fields: [cartId], references: [id])
+  Order       Order[]
 
   @@map("marketing_data")
+}
+
+model Order {
+  id            String         @id @default(uuid())
+  cartId        String
+  ownerId       String
+  status        Status         @default(ACTIVE)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  items         OrderItem[]    @relation("OrderItems")
+  customerId    String
+  marketingData MarketingData? @relation(fields: [marketingDataId], references: [id])
+
+  marketingDataId String?
+  Customer        Customer              @relation(fields: [customerId], references: [id])
+  billingAddress  OrderBillingAddress[]
+
+  @@map("orders")
+}
+
+model Customer {
+  id           String   @id @default(uuid())
+  name         String
+  email        String
+  document     String
+  documentType String
+  phone        String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  orders       Order[]
+
+  @@map("customers")
+}
+
+model OrderItem {
+  id       String          @id @default(uuid())
+  orderId  String
+  itemId   String
+  name     String
+  price    Int             @default(0)
+  discount Int             @default(0)
+  quantity Int
+  users    OrderItemUser[] @relation("OrderItemUsers")
+  order    Order           @relation(fields: [orderId], references: [id], name: "OrderItems")
+
+  @@map("order_items")
+}
+
+model OrderItemUser {
+  id          String    @id @default(uuid())
+  orderItemId String
+  name        String
+  email       String
+  infoExtra   Json
+  orderItem   OrderItem @relation(fields: [orderItemId], references: [id], name: "OrderItemUsers")
+
+  @@map("order_item_users")
+}
+
+model OrderBillingAddress {
+  id           String  @id @default(uuid())
+  orderId      String
+  street       String
+  number       String?
+  complement   String?
+  city         String
+  state        String
+  neighborhood String
+  country      String? @default("BR")
+  zipCode      String
+  order        Order   @relation(fields: [orderId], references: [id])
+
+  @@map("order_billing_addresses")
 }

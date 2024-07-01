@@ -3,6 +3,7 @@ import { CreateCartUseCase } from "@modules/cart/application/useCases/CreateCart
 import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { MockCartRepository } from "../../mocks/repository/MockCartRepositor";
 import { OwnerNotFoundException } from "@modules/owner/domain/errors/OwnerNotFound";
+import { faker } from "@faker-js/faker";
 
 describe("CreateCart", () => {
   let useCase: CreateCartUseCase;
@@ -13,10 +14,10 @@ describe("CreateCart", () => {
     repository = new MockCartRepository();
     useCase = new CreateCartUseCase(repository);
     input = {
-      ownerId: "ownerId",
+      ownerId: faker.string.uuid(),
       items: [
         {
-          ticketId: "ticketId",
+          itemId: faker.string.uuid(),
           quantity: 2,
           users: [],
         },

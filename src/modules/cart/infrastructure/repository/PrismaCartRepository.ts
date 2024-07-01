@@ -3,7 +3,7 @@ import { Cart } from "@modules/cart/domain/entity/Cart";
 import { Owner } from "@modules/owner/domain/entity/Owner";
 import { Ticket } from "@modules/tickets/domain/entity/Ticket";
 import { Currency } from "@modules/tickets/domain/valueObject/TicketPrice";
-import { PrismaClient, Status } from "@prisma/client";
+import { CartStatus, PrismaClient, Status } from "@prisma/client";
 import { randomUUID } from "crypto";
 
 export class PrismaCartRepository implements CartRepository {
@@ -45,9 +45,7 @@ export class PrismaCartRepository implements CartRepository {
       createdAt: cart.createdAt,
       updatedAt: cart.updatedAt,
       items: cart.items.map((item) => ({
-        ticketId: item.ticketId,
-        price: item.price,
-        discount: item.discount,
+        itemId: item.itemId,
         quantity: item.quantity,
         users: item.users.map((user) => ({
           name: user.name,
@@ -72,14 +70,13 @@ export class PrismaCartRepository implements CartRepository {
         id: cart.id,
         ownerId: cart.ownerId,
         status: cart.status as Status,
+        statusCart: cart.statusCart as CartStatus,
         createdAt: cart.createdAt,
         updatedAt: cart.updatedAt,
         items: {
           create: cart.items.map((item) => ({
             id: randomUUID(),
-            ticketId: item.ticketId,
-            discount: item.discount,
-            price: item.price,
+            itemId: item.itemId,
             quantity: item.quantity,
             users: {
               create: item.users.map((user) => ({
@@ -152,6 +149,7 @@ export class PrismaCartRepository implements CartRepository {
       data: {
         status: cart.status as Status,
         updatedAt: cart.updatedAt,
+        statusCart: cart.statusCart as CartStatus,
         createdAt: cart.createdAt,
         ...cart.customer && {
           customerEmail: cart.customer.email,
@@ -160,9 +158,7 @@ export class PrismaCartRepository implements CartRepository {
         items: {
           create: cart.items.map((item) => ({
             id: randomUUID(),
-            ticketId: item.ticketId,
-            discount: item.discount,
-            price: item.price,
+            itemId: item.itemId,
             quantity: item.quantity,
             users: {
               create: item.users.map((user) => ({
@@ -202,100 +198,6 @@ export class PrismaCartRepository implements CartRepository {
         },
       }
     })
-
-
-   /* for (const item of cart.items) {
-      await this.client.user.deleteMany({
-        where: {
-          itemId: item.,
-        },
-      });
-    }
-    // Primeiro, exclua todos os usuários associados aos itens do carrinho
-    await this.client.cart.update({
-      where: {
-        id: cart.id,
-      },
-      data: {
-        items: {
-          updateMany: {
-            where: {},
-            data: {
-              users: {
-                deleteMany: {},
-              },
-            },
-          },
-        },
-      },
-    });
-
-    // Em seguida, exclua todos os itens do carrinho
-    await this.client.cart.update({
-      where: {
-        id: cart.id,
-      },
-      data: {
-        items: {
-          deleteMany: {},
-        },
-      },
-    });
-
-    // Agora, recrie os itens e usuários associados
-    await this.client.cart.update({
-      where: {
-        id: cart.id,
-        status: "ACTIVE",
-      },
-      data: {
-        items: {
-          create: cart.items.map((item) => ({
-            id: randomUUID(),
-            ticketId: item.ticketId,
-            discount: item.discount,
-            price: item.price,
-            quantity: item.quantity,
-            users: {
-              create: item.users.map((user) => ({
-                id: randomUUID(),
-                name: user.name,
-                email: user.email,
-                infoExtra: JSON.stringify(user.infoExtra) || "",
-              })),
-            },
-          })),
-        },
-        customerEmail: cart.customer?.email,
-        customerName: cart.customer?.name,
-        marketingData: {
-          upsert: {
-            create: {
-              utmMedium:
-                cart.marketingData.utmMedium || cart.marketingData.utm_medium,
-              utmSource:
-                cart.marketingData.utmSource || cart.marketingData.utm_source,
-              utmCampaign:
-                cart.marketingData.utmCampaign ||
-                cart.marketingData.utm_campaign,
-              utmContent:
-                cart.marketingData.utmContent || cart.marketingData.utm_content,
-            },
-            update: {
-              utmMedium:
-                cart.marketingData.utmMedium || cart.marketingData.utm_medium,
-              utmSource:
-                cart.marketingData.utmSource || cart.marketingData.utm_source,
-              utmCampaign:
-                cart.marketingData.utmCampaign ||
-                cart.marketingData.utm_campaign,
-              utmContent:
-                cart.marketingData.utmContent || cart.marketingData.utm_content,
-            },
-          },
-        },
-      },
-    });*/
   }
 
   async getOwnerId(ownerId: string): Promise<Owner | null> {

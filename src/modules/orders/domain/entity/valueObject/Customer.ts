@@ -18,7 +18,7 @@ export class OrderCustomer {
   private _phone: string;
 
   constructor(props: OrderCustomerProps) {
-    const documentType = props.documentType.toUpperCase();
+    const documentType = props?.documentType?.toUpperCase();
     this._name = props.name;
     this._email = new Email(props.email).value;
     this._document = DocumentFactory.create(documentType, props.document).value;
@@ -34,6 +34,18 @@ export class OrderCustomer {
 
   get email() {
     return this._email;
+  }
+
+  get document() {
+    return this._document;
+  }
+
+  get documentType() {
+    return this._documentType;
+  }
+
+  get phone() {
+    return this._phone;
   }
 
   toJSON() {

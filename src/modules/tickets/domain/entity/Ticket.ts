@@ -100,8 +100,6 @@ export class Ticket extends BaseEntity {
     return this._categoryId;
   }
 
-  
-
   update(props: Partial<TicketProps>) {
     this._name = props.name || this._name;
     this._description = props.description || this._description;
@@ -140,6 +138,19 @@ export class Ticket extends BaseEntity {
 
   public pause(): void {
     this._saleStatus = TicketSaleStatus.PAUSED;
+  }
+
+  decreaseStock(quantity: number): void {
+    this._stock.decreaseStock(quantity);
+    this._usedQuantity += quantity;
+  }
+
+  validateStock(quantity: number): boolean {
+    if (this._saleStatus !== TicketSaleStatus.AVAILABLE) {
+      return false;
+    }
+
+    return this._stock.validateStock(quantity);
   }
 
   private validate() {

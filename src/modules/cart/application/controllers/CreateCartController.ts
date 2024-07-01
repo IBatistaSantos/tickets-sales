@@ -9,7 +9,7 @@ import { CartUser } from "@modules/cart/domain/entity/valueObject/CarItem";
 import { ValidationError } from "@core/domain/errors/ValidationError";
 
 interface ItemInput {
-  ticketId: string;
+  itemId: string;
   quantity: number;
   users?: CartUser[];
 }
@@ -35,7 +35,7 @@ export class CreateCartController extends BaseController {
         ownerId: z.string(),
         items: z.array(
           z.object({
-            ticketId: z.string(),
+            itemId: z.string(),
             quantity: z
               .number()
               .min(1, { message: "Quantity must be greater than 0" }),

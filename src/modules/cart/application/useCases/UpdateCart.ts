@@ -7,7 +7,7 @@ import {
 } from "@modules/cart/domain/entity/valueObject/CarItem";
 
 interface InputItem {
-  ticketId: string;
+  itemId: string;
   quantity: number;
   users?: CartUser[];
 }
@@ -26,7 +26,7 @@ export class UpdateCartUseCase {
     if (!cart) throw new CartNotFoundException();
 
     if (data.items) {
-      const ticketIds = data.items.map((item) => item.ticketId);
+      const ticketIds = data.items.map((item) => item.itemId);
       const listTickets = await this.repository.getTicketsByIds(ticketIds);
       const listItemCart = CartItem.createMany(data.items, listTickets);
       cart.updateItems(listItemCart);

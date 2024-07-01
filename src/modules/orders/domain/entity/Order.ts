@@ -5,6 +5,9 @@ import {
 } from "./valueObject/BillingAddress";
 import { OrderCustomer, OrderCustomerProps } from "./valueObject/Customer";
 import { OrderItem, OrderItemProps } from "./valueObject/OrderItem";
+import { CartItem } from "@modules/cart/domain/entity/valueObject/CarItem";
+import { Ticket } from "@modules/tickets/domain/entity/Ticket";
+import { ValidationError } from "@core/domain/errors/ValidationError";
 
 export enum OrderStatus {
   PENDING = "pending",
@@ -22,12 +25,14 @@ interface OrderTotal {
 
 interface OrderPayment {
   method: string;
-  gateway: string;
-  gatewayId: string;
+  gateway?: string;
+  gatewayId?: string;
   information?: Record<string, any>;
 }
 
 interface OrderProps extends BaseEntityProps {
+  cartId: string;
+  ownerId: string;
   customer: OrderCustomerProps;
   billingAddress: BillingAddressProps;
   items: OrderItemProps[];
@@ -37,6 +42,8 @@ interface OrderProps extends BaseEntityProps {
 }
 
 export class Order extends BaseEntity {
+  private _ownerId: string;
+  private _cartId: string;
   private _customer: OrderCustomer;
   private _billingAddress: BillingAddress;
   private _marketingData?: Record<string, string>;
@@ -47,6 +54,8 @@ export class Order extends BaseEntity {
 
   constructor(props: OrderProps) {
     super(props);
+    this._cartId = props.cartId;
+    this._ownerId = props.ownerId;
     this._customer = new OrderCustomer(props.customer);
     this._billingAddress = new BillingAddress(props.billingAddress);
     this._marketingData = props.marketingData;
@@ -62,8 +71,16 @@ export class Order extends BaseEntity {
     return this._customer;
   }
 
+  get ownerId() {
+    return this._ownerId;
+  }
+
   get isFree() {
     return this._total.amount === 0;
+  }
+
+  get cartId() {
+    return this._cartId;
   }
 
   get items() {
@@ -122,9 +139,30 @@ export class Order extends BaseEntity {
     }
   }
 
+  static createItems(cartItem: CartItem[], ticketMap: Map<string, Ticket>) {
+    return cartItem.map((item) => {
+      const ticket = ticketMap.get(item.itemId);
+      if (!ticket)
+        throw new ValidationError(`Ticket with id ${item.itemId} not found`);
+      return {
+        itemId: item.itemId,
+        price: ticket.price.price,
+        quantity: item.quantity,
+        name: ticket.name,
+        users: item.users.map((user) => ({
+          name: user.name,
+          email: user.email,
+          infoExtra: user.infoExtra,
+        })),
+      };
+    });
+  }
+
   toJSON() {
     return {
       ...super.toJSON(),
+      cartId: this.cartId,
+      ownerId: this._ownerId,
       customer: this._customer,
       items: this._items.map((item) => item.toJSON()),
       billingAddress: this._billingAddress.toJSON(),

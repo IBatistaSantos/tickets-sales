@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { faker } from "@faker-js/faker";
-import { Cart } from "@modules/cart/domain/entity/Cart";
+import { Cart, CartStatus } from "@modules/cart/domain/entity/Cart";
 import { ValidationError } from "@core/domain/errors/ValidationError";
 
 describe("Cart", () => {
@@ -9,10 +9,8 @@ describe("Cart", () => {
       ownerId: faker.database.mongodbObjectId(),
       items: [
         {
-          ticketId: faker.database.mongodbObjectId(),
-          price: 2500,
+          itemId: faker.database.mongodbObjectId(),
           quantity: faker.number.int(),
-          discount: 0,
           users: [],
         },
       ],
@@ -24,24 +22,6 @@ describe("Cart", () => {
     expect(cart.ownerId).toBe(props.ownerId);
     expect(cartJson.items).toEqual(props.items);
   });
-
-  it('should calculate the total amount of the cart', () => {
-    const props = {
-      ownerId: faker.database.mongodbObjectId(),
-      items: [
-        {
-          ticketId: faker.database.mongodbObjectId(),
-          price: 2500,
-          quantity: 2,
-          discount: 0,
-          users: [],
-        },
-      ],
-    };
-    const cart = new Cart(props);
-
-    expect(cart.total.amount).toBe(5000);
-  })
 
   it("should throw an error if ownerId is not provided", () => {
     expect(() => new Cart({ items: [], ownerId: "" })).toThrowError(
@@ -55,31 +35,56 @@ describe("Cart", () => {
     );
   });
 
-  it("should throw an error if total is less than 0", () => {
-    expect(
-      () =>
-        new Cart({
-          ownerId: faker.database.mongodbObjectId(),
-          items: [{
-            price: -2500,
-            quantity: faker.number.int(),
-            ticketId: faker.database.mongodbObjectId(),
-          }],
-          total: { discount: 0, amount: -1 },
-        })
-    ).toThrowError(ValidationError);
-  });
+  describe("checkOut", () => {
+    it("should change status to checked-out", () => {
+      const cart = new Cart({
+        ownerId: faker.database.mongodbObjectId(),
+        customer: {
+          email: faker.internet.email(),
+          name: faker.person.fullName(),
+        },
+        items: [
+          {
+            quantity: 1,
+            itemId: faker.string.uuid(),
+            users: [
+              {
+                email: faker.internet.email(),
+                name: faker.person.fullName(),
+              },
+            ],
+          },
+        ]
+      });
 
-  it('should throw an error if discount is less than 0', () => {
-    expect(() => new Cart({
-      ownerId: faker.database.mongodbObjectId(),
-      items: [{
-        price: 2500,
-        discount: -1,
-        quantity: faker.number.int(),
-        ticketId: faker.database.mongodbObjectId(),
-      }],
-      total: { discount: -1, amount: 0 },
-    })).toThrowError(ValidationError);
-  })
+      cart.checkout();
+
+      expect(cart.statusCart).toBe(CartStatus.CHECKED_OUT);
+    });
+
+    it("should throw an error if cart is already checked-out", () => {
+      const cart = new Cart({
+        ownerId: faker.database.mongodbObjectId(),
+        customer: {
+          email: faker.internet.email(),
+          name: faker.person.fullName(),
+        },
+        items: [
+          {
+            quantity: 1,
+            itemId: faker.string.uuid(),
+            users: [
+              {
+                email: faker.internet.email(),
+                name: faker.person.fullName(),
+              },
+            ],
+          },
+        ],
+        statusCart: CartStatus.CHECKED_OUT,
+      });
+
+      expect(() => cart.checkout()).toThrowError(ValidationError);
+    });
+  });
 });
