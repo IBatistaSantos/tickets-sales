@@ -1,10 +1,12 @@
+import { CartStatus, PrismaClient, Status } from "@prisma/client";
+import { randomUUID } from "crypto";
+
 import { CartRepository } from "@modules/cart/application/repository/CartRepository";
 import { Cart } from "@modules/cart/domain/entity/Cart";
 import { Owner } from "@modules/owner/domain/entity/Owner";
 import { Ticket } from "@modules/tickets/domain/entity/Ticket";
 import { Currency } from "@modules/tickets/domain/valueObject/TicketPrice";
-import { CartStatus, PrismaClient, Status } from "@prisma/client";
-import { randomUUID } from "crypto";
+import { CartStatus as CartStatusDomain } from "@modules/cart/domain/entity/Cart";
 
 export class PrismaCartRepository implements CartRepository {
   private client: PrismaClient;
@@ -43,6 +45,7 @@ export class PrismaCartRepository implements CartRepository {
       ownerId: cart.ownerId,
       status: cart.status as any,
       createdAt: cart.createdAt,
+      statusCart: cart.statusCart as CartStatusDomain,
       updatedAt: cart.updatedAt,
       items: cart.items.map((item) => ({
         itemId: item.itemId,
@@ -107,7 +110,6 @@ export class PrismaCartRepository implements CartRepository {
   }
 
   async update(cart: Cart): Promise<void> {
-
     const cartDb = await this.client.cart.findUnique({
       where: {
         id: cart.id,
@@ -116,8 +118,8 @@ export class PrismaCartRepository implements CartRepository {
       include: {
         items: true,
         marketingData: true,
-      }
-    })
+      },
+    });
 
     if (!cartDb) throw new Error("Cart not found");
 
@@ -132,29 +134,29 @@ export class PrismaCartRepository implements CartRepository {
     await this.client.cart.update({
       where: {
         id: cart.id,
-        status: "ACTIVE"
+        status: "ACTIVE",
       },
       data: {
         items: {
-          deleteMany: {}
-        }
-      }
-    })
+          deleteMany: {},
+        },
+      },
+    });
 
-     await this.client.cart.update({
+    await this.client.cart.update({
       where: {
         id: cart.id,
-        status: "ACTIVE"
+        status: "ACTIVE",
       },
       data: {
         status: cart.status as Status,
         updatedAt: cart.updatedAt,
         statusCart: cart.statusCart as CartStatus,
         createdAt: cart.createdAt,
-        ...cart.customer && {
+        ...(cart.customer && {
           customerEmail: cart.customer.email,
           customerName: cart.customer.name,
-        },
+        }),
         items: {
           create: cart.items.map((item) => ({
             id: randomUUID(),
@@ -196,8 +198,8 @@ export class PrismaCartRepository implements CartRepository {
             },
           },
         },
-      }
-    })
+      },
+    });
   }
 
   async getOwnerId(ownerId: string): Promise<Owner | null> {

@@ -101,7 +101,6 @@ export class CartItem {
   }
 
   private static validateTicket(ticket: Ticket, quantity: number): boolean {
-    
     return ticket && ticket.stock.validateStock(quantity);
   }
 
