@@ -15,7 +15,8 @@ export class TicketStock {
 
   constructor(props: TicketStockProps) {
     this._total = props.total || 0;
-    this._available = props.available || this._total;
+    this._available =
+      props.available !== undefined ? props.available : this._total;
     this._type = props.type;
 
     this.validate();
@@ -42,9 +43,7 @@ export class TicketStock {
       return true;
     }
 
-    console.log({ quantity, available: this._available })
-    console.log(quantity < this._available)
-    return quantity < this._available;
+    return quantity <= this._available;
   }
 
   decreaseStock(quantity: number) {
