@@ -6,6 +6,7 @@ import { makeDeleteTicketControllerFactory } from "../factories/controller/Delet
 import { makeListTicketCompleteControllerFactory } from "../factories/controller/ListTicketCompleteControllerFactory";
 import { makeUpdateTicketControllerFactory } from "../factories/controller/UpdateTicketControllerFactory";
 import { makePauseSalesTicketControllerFactory } from "../factories/controller/PauseSalesTicketControllerFactory";
+import { makeHiddenTicketControllerFactory } from "../factories/controller/HiddenTicketControllerFactory";
 
 export default function ticketRoutes(app: Elysia): Elysia {
   const createTicketController = makeCreateTicketController();
@@ -25,6 +26,11 @@ export default function ticketRoutes(app: Elysia): Elysia {
     );
     group.put("/:ticketId", adaptRoute(updateTicketController));
     group.patch("/:ticketId/pause", adaptRoute(pauseSalesTicketController));
+    group.patch(
+      "/:ticketId/hidden",
+      adaptRoute(makeHiddenTicketControllerFactory())
+    );
+
     return group;
   });
 
