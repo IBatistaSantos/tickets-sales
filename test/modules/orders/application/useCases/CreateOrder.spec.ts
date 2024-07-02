@@ -5,23 +5,27 @@ import { beforeEach, describe, expect, it, spyOn } from "bun:test";
 import { MockOrderRepository } from "../../mocks/repository/MockOrderRepository";
 import { MockTransaction } from "../../mocks/repository/MockTransaction";
 import { faker } from "@faker-js/faker";
+import { MockEventPublisher } from "../../../../core/application/controller/mocks/MockPublisher";
+import { EventPublisher } from "@core/domain/entity/events/EventPublisher";
 
 describe("CreateOrder", () => {
   let useCase: CreateOrderUsecase;
   let repository: OrderRepository;
   let transaction: Transaction;
+  let publisher: EventPublisher;
   let input: any;
 
   beforeEach(() => {
     repository = new MockOrderRepository();
     transaction = new MockTransaction();
+    publisher = new MockEventPublisher();
 
     input = {
       cartId: faker.string.uuid(),
       customer: {
         name: faker.person.firstName(),
         email: faker.internet.email(),
-        document: '01234567890',
+        document: "01234567890",
         documentType: "CPF",
         phone: faker.phone.number(),
       },
@@ -36,9 +40,8 @@ describe("CreateOrder", () => {
       payment: {
         method: "credit_card",
       },
-
-    }
-    useCase = new CreateOrderUsecase(repository, transaction);
+    };
+    useCase = new CreateOrderUsecase(repository, transaction, publisher);
   });
 
   it("should create an order", async () => {
@@ -49,14 +52,14 @@ describe("CreateOrder", () => {
   it("should throw an error when cart not found", async () => {
     spyOn(repository, "getCart").mockResolvedValueOnce(null);
 
-    expect(useCase.execute(input))
-    .rejects.toThrowError("Cart not found");
-  })
+    expect(useCase.execute(input)).rejects.toThrowError("Cart not found");
+  });
 
   it("should throw an error when some tickets not found", async () => {
     spyOn(repository, "getTicketsByIds").mockResolvedValueOnce([]);
 
-    expect(useCase.execute(input))
-    .rejects.toThrowError("Some tickets not found");
-  })
+    expect(useCase.execute(input)).rejects.toThrowError(
+      "Some tickets not found"
+    );
+  });
 });

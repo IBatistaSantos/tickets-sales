@@ -8,6 +8,8 @@ import { OrderItemProps } from "@modules/orders/domain/entity/valueObject/OrderI
 import { Ticket } from "@modules/tickets/domain/entity/Ticket";
 import { OrderRepository } from "../repository/OrderRepository";
 import { Transaction } from "../repository/Transaction";
+import { EventPublisher } from "@core/domain/entity/events/EventPublisher";
+import { OrderCreatedEvent } from "@modules/orders/domain/events/OrderCreatedEvent";
 
 interface Input {
   cartId: string;
@@ -23,7 +25,8 @@ interface Input {
 export class CreateOrderUsecase {
   constructor(
     private orderRepository: OrderRepository,
-    private transaction: Transaction
+    private transaction: Transaction,
+    private eventPublisher: EventPublisher
   ) {}
 
   async execute(input: Input) {
@@ -58,7 +61,18 @@ export class CreateOrderUsecase {
       await this.orderRepository.updateCart(cart, session);
     });
 
-    return { orderId: order.id };
+    const data = order.toJSON();
+    const orderId = data.id;
+    delete data.id;
+
+    const event = new OrderCreatedEvent(this.eventPublisher, {
+      orderId,
+      ...data,
+    });
+
+    event.emit();
+
+    return { orderId };
   }
 
   private async getValidatedCart(cartId: string): Promise<Cart> {
