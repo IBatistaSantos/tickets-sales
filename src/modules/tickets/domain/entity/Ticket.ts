@@ -145,12 +145,27 @@ export class Ticket extends BaseEntity {
     this._usedQuantity += quantity;
   }
 
-  validateStock(quantity: number): boolean {
+  canSales(quantity: number) {
     if (this._saleStatus !== TicketSaleStatus.AVAILABLE) {
-      return false;
+      return {
+        succeeded: false,
+        reason: `Ticket with name ${this._name} is not available`,
+      };
     }
 
-    return this._stock.validateStock(quantity);
+    const validateStock = this._stock.validateStock(quantity);
+
+    if (!validateStock) {
+      return {
+        succeeded: false,
+        reason: `Ticket with name ${this._name} has no stock`,
+      };
+    }
+
+    return {
+      succeeded: true,
+      reason: null,
+    };
   }
 
   private validate() {

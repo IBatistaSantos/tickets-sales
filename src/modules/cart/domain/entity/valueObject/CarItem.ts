@@ -74,16 +74,10 @@ export class CartItem {
         throw new ValidationError(`Ticket with id ${item.itemId} not found`);
       }
 
-      if (!this.validateTicket(ticket, item.quantity)) {
-        throw new ValidationError(
-          `Ticket with name ${ticket.name} has no stock`
-        );
-      }
+      const { succeeded, reason } = ticket.canSales(item.quantity);
 
-      if (ticket.saleStatus !== "AVAILABLE") {
-        throw new ValidationError(
-          `Ticket with name ${ticket.name} is not available`
-        );
+      if (!succeeded) {
+        throw new ValidationError(reason || "Ticket can not be sold");
       }
 
       return new CartItem({

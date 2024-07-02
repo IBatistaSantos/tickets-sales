@@ -93,12 +93,10 @@ export class CreateOrderUsecase {
         throw new ValidationError(`Ticket with id ${item.itemId} not found`);
       }
 
-      const stockAvailable = ticket.validateStock(item.quantity);
+      const { succeeded, reason } = ticket.canSales(item.quantity);
 
-      if (!stockAvailable) {
-        throw new ValidationError(
-          `Ticket with name ${ticket.name} has no stock`
-        );
+      if (!succeeded) {
+        throw new ValidationError(reason || "Ticket can not be sold");
       }
     });
   }

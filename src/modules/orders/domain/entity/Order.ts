@@ -159,8 +159,16 @@ export class Order extends BaseEntity {
   static createItems(cartItem: CartItem[], ticketMap: Map<string, Ticket>) {
     return cartItem.map((item) => {
       const ticket = ticketMap.get(item.itemId);
-      if (!ticket)
+      if (!ticket) {
         throw new ValidationError(`Ticket with id ${item.itemId} not found`);
+      }
+
+      const { succeeded, reason } = ticket.canSales(item.quantity);
+
+      if (!succeeded) {
+        throw new ValidationError(reason || "Ticket can not be sold");
+      }
+
       return {
         itemId: item.itemId,
         price: ticket.price.price,
