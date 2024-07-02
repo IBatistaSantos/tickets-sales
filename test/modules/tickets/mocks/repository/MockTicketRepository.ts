@@ -3,13 +3,30 @@ import { TicketRepository } from "../../../../../src/modules/tickets/application
 import { Ticket } from "../../../../../src/modules/tickets/domain/entity/Ticket";
 
 export class MockTicketRepository implements TicketRepository {
-  
   private tickets: Ticket[] = [];
 
   async findAll(ownerId: string): Promise<Ticket[]> {
     return Promise.resolve(
       this.tickets.filter((ticket) => ticket.ownerId === ownerId)
     );
+  }
+
+  async findByIds(ticketIds: string[], ownerId: string): Promise<Ticket[]> {
+    return Promise.resolve(
+      this.tickets.filter(
+        (ticket) => ticketIds.includes(ticket.id) && ticket.ownerId === ownerId
+      ).sort((a, b) => a.position - b.position)
+    );
+  }
+
+  async updateMany(tickets: Ticket[]): Promise<void> {
+    tickets.forEach((ticket) => {
+      const index = this.tickets.findIndex(
+        (t) => t.id === ticket.id && t.ownerId === ticket.ownerId
+      );
+      this.tickets[index] = ticket;
+    });
+    return Promise.resolve();
   }
 
   findOne(query: any): Promise<Ticket | null> {
@@ -22,9 +39,7 @@ export class MockTicketRepository implements TicketRepository {
 
   findById(ticketId: string): Promise<Ticket | null> {
     return Promise.resolve(
-      this.tickets.find(
-        (ticket) => ticket.id === ticketId
-      ) || null
+      this.tickets.find((ticket) => ticket.id === ticketId) || null
     );
   }
 
@@ -62,7 +77,7 @@ export class MockTicketRepository implements TicketRepository {
     const index = this.tickets.findIndex(
       (t) => t.id === ticket.id && t.ownerId === ticket.ownerId
     );
-   
+
     if (index < 0) {
       return Promise.reject();
     }

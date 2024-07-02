@@ -11,6 +11,54 @@ export class PrismaTicketRepository implements TicketRepository {
   constructor() {
     this.client = new PrismaClient();
   }
+
+  async findByIds(ticketIds: string[], ownerId: string): Promise<Ticket[]> {
+    const tickets = await this.client.ticket.findMany({
+      where: {
+        id: {
+          in: ticketIds,
+        },
+        ownerId,
+        status: "ACTIVE",
+      },
+      include: {
+        price: true,
+        stock: true,
+      },
+      orderBy: { position: "asc" },
+    });
+
+    if (!tickets || !tickets.length) return [];
+
+    return tickets.map((ticket) => {
+      return new Ticket({
+        id: ticket.id,
+        name: ticket.name,
+        updatedAt: ticket.updatedAt,
+        description: ticket.description || "",
+        ownerId: ticket.ownerId,
+        price: {
+          price: ticket.price.price,
+          currency: ticket.price.currency as Currency,
+        },
+        stock: {
+          total: ticket.stock.total,
+          type: ticket.stock.type,
+          available: ticket.stock.available,
+        },
+        saleStatus: ticket.saleStatus as TicketSaleStatus,
+        accessType: ticket.accessType,
+        status: ticket.status,
+        createdAt: ticket.createdAt,
+        usedQuantity: ticket.usedQuantity,
+        position: ticket.position,
+        hidden: ticket.hidden,
+        categoryId: ticket.categoryId || "",
+      });
+    });
+  }
+
+
   async findOne(query: any): Promise<Ticket | null> {
      const ticket = await this.client.ticket.findFirst({
       where: {
@@ -141,6 +189,7 @@ export class PrismaTicketRepository implements TicketRepository {
         price: true,
         stock: true,
       },
+      orderBy: { position: "asc" },
     });
 
     if (!tickets || !tickets.length) return [];
@@ -217,7 +266,8 @@ export class PrismaTicketRepository implements TicketRepository {
         saleStatus: "AVAILABLE",
       },
       include: { price: true, stock: true },
-    });
+      orderBy: { position: "asc" },
+    })
 
     if (!result || !result.length) return [];
 
@@ -304,6 +354,51 @@ export class PrismaTicketRepository implements TicketRepository {
     } catch (error) {
       console.error(error);
       throw new Error("Error saving ticket");
+    }
+  }
+
+  async updateMany(tickets: Ticket[]): Promise<void> {
+    try {
+      await this.client.$transaction(async (transaction) => {
+        await Promise.all(
+          tickets.map(async (ticket) => {
+            await transaction.ticket.update({
+              where: {
+                id: ticket.id,
+              },
+              data: {
+                name: ticket.name,
+                description: ticket.description || "",
+                price: {
+                  update: {
+                    price: ticket.price.price,
+                    currency: ticket.price.currency as CurrencyPrisma,
+                  },
+                },
+                stock: {
+                  update: {
+                    total: ticket.stock.total,
+                    type: ticket.stock.type,
+                    available: ticket.stock.available,
+                  },
+                },
+                updatedAt: ticket.updatedAt,
+                status: ticket.status as Status,
+                createdAt: ticket.createdAt,
+                saleStatus: ticket.saleStatus,
+                accessType: ticket.accessType as AccessType,
+                usedQuantity: ticket.usedQuantity,
+                position: ticket.position,
+                hidden: ticket.hidden,
+                categoryId: ticket.categoryId || null,
+              },
+            });
+          })
+        );
+      });
+    } catch (error) {
+      console.error(error);
+      throw new Error("Error updating tickets");
     }
   }
 }

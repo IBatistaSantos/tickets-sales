@@ -6,8 +6,10 @@ export interface TicketRepository {
   findOne(query: any): Promise<Ticket | null>;
   findById(ticketId: string): Promise<Ticket | null>;
   findAll(ownerId: string): Promise<Ticket[]>;
+  findByIds(ticketIds: string[], ownerId: string): Promise<Ticket[]>;
   listTickets(ownerId: string): Promise<Ticket[]>;
   getOwnerById(ownerId: string): Promise<Owner | null>;
   save(ticket: Ticket): Promise<void>;
   update(ticket: Ticket): Promise<void>;
+  updateMany(tickets: Ticket[]): Promise<void>;
 }

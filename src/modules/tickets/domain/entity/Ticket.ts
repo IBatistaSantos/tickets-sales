@@ -123,6 +123,10 @@ export class Ticket extends BaseEntity {
     this.validate();
   }
 
+  updatePosition(position: number) {
+    this._position = position;
+  }
+
   toJSON() {
     return {
       ...super.toJSON(),
