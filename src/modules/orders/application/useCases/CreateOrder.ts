@@ -43,7 +43,7 @@ export class CreateOrderUsecase {
 
     this.validateStock(items, ticketMap);
 
-    const order = new Order({
+    const order = Order.create({
       ownerId: cart.ownerId,
       customer: input.customer,
       billingAddress: input.billingAddress,

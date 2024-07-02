@@ -7,7 +7,7 @@ import { describe, expect, it } from "bun:test";
 
 describe("Order", () => {
   it("should create an order", () => {
-    const order = new Order({
+    const order = Order.create({
       ownerId: faker.string.uuid(),
       cartId: faker.string.uuid(),
       billingAddress: {
@@ -56,7 +56,7 @@ describe("Order", () => {
   });
 
   it("should calculate total", () => {
-    const order = new Order({
+    const order = Order.create({
       ownerId: faker.string.uuid(),
       cartId: faker.string.uuid(),
       billingAddress: {
@@ -112,13 +112,14 @@ describe("Order", () => {
 
     expect(order.total).toEqual({
       amount: 500,
+      amountItems: 500,
       discount: 0,
       tax: 0,
     });
   });
 
   it("should return if order is free", () => {
-    const order = new Order({
+    const order = Order.create({
       ownerId: faker.string.uuid(),
       cartId: faker.string.uuid(),
       billingAddress: {
@@ -161,7 +162,7 @@ describe("Order", () => {
 
   it("should throw error if order is empty", () => {
     expect(() => {
-      new Order({
+      Order.create({
         ownerId: faker.string.uuid(),
         cartId: faker.string.uuid(),
         billingAddress: {
@@ -189,7 +190,7 @@ describe("Order", () => {
   });
 
   it("should return payment free if order is free", () => {
-    const order = new Order({
+    const order = Order.create({
       ownerId: faker.string.uuid(),
       cartId: faker.string.uuid(),
       billingAddress: {
@@ -235,7 +236,7 @@ describe("Order", () => {
   });
 
   it("should return status order paid if order is free", () => {
-    const order = new Order({
+    const order =  Order.create({
       ownerId: faker.string.uuid(),
       cartId: faker.string.uuid(),
       billingAddress: {
@@ -278,7 +279,7 @@ describe("Order", () => {
 
   it("should throw error if order is free and has not payment", () => {
     expect(() => {
-      new Order({
+       Order.create({
         ownerId: faker.string.uuid(),
         cartId: faker.string.uuid(),
         billingAddress: {
@@ -291,7 +292,7 @@ describe("Order", () => {
         customer: {
           document: "12345678909",
           documentType: "cpf",
-          email: faker.internet.email(),
+          email: faker.internet.email(), 
           name: faker.person.fullName(),
           phone: faker.string.uuid(),
         },

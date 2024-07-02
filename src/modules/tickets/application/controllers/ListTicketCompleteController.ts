@@ -32,7 +32,7 @@ export class ListTicketCompleteController extends BaseController {
     const result = await this.useCase.execute(input.ownerId);
 
     return {
-      statusCode: 201,
+      statusCode: 200,
       data: result,
     };
   }

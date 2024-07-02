@@ -147,15 +147,19 @@ model MarketingData {
 }
 
 model Order {
-  id            String         @id @default(uuid())
-  cartId        String
-  ownerId       String
-  status        Status         @default(ACTIVE)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  items         OrderItem[]    @relation("OrderItems")
-  customerId    String
-  marketingData MarketingData? @relation(fields: [marketingDataId], references: [id])
+  id             String         @id @default(uuid())
+  cartId         String
+  ownerId        String
+  status         Status         @default(ACTIVE)
+  total_amount   Int            @default(0)
+  total_items    Int            @default(0)
+  total_discount Int            @default(0)
+  total_tax      Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  items          OrderItem[]    @relation("OrderItems")
+  customerId     String
+  marketingData  MarketingData? @relation(fields: [marketingDataId], references: [id])
 
   marketingDataId String?
   Customer        Customer              @relation(fields: [customerId], references: [id])

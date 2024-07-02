@@ -1,36 +1,35 @@
-
 import { z } from "zod";
 import {
   BaseController,
   Response,
 } from "../../../../core/application/controller/BaseController";
-import { ListTicketUseCase } from "../useCases/ListTicket";
+import { PauseSalesTicket } from "../useCases/PauseSalesTicket";
 
 interface Input {
+  ticketId: string;
   ownerId: string;
 }
 
-export class ListTicketController extends BaseController {
-  private useCase: ListTicketUseCase;
+export class PauseSalesTicketController extends BaseController {
+  private useCase: PauseSalesTicket;
 
-  constructor(useCase: ListTicketUseCase) {
+  constructor(useCase: PauseSalesTicket) {
     super();
     this.useCase = useCase;
   }
 
   protected async execute(input: Input): Promise<Response> {
-    const schema = z
-      .object({
-        ownerId: z.string(),
-      })
+    const schema = z.object({
+      ticketId: z.string(),
+    });
 
     this.validate(schema, input);
 
-    const result = await this.useCase.execute(input.ownerId);
+    await this.useCase.execute(input.ticketId);
 
     return {
       statusCode: 200,
-      data: result,
+      data: null,
     };
   }
 }

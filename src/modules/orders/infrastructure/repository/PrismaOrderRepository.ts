@@ -33,6 +33,10 @@ export class PrismaOrderRepository implements OrderRepository {
         cartId: order.cartId,
         createdAt: order.createdAt,
         customerId: customer.id,
+        total_amount: order.total.amount,
+        total_discount: order.total.discount,
+        total_items: order.total.amountItems,
+        total_tax: order.total.tax,
         status: order.status as Status,
         updatedAt: order.updatedAt,
         billingAddress: {

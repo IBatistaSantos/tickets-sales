@@ -29,7 +29,7 @@ export class DeleteTicketController extends BaseController {
     const result = await this.useCase.execute(input.ticketId, input.ownerId);
 
     return {
-      statusCode: 201,
+      statusCode: 200,
       data: result,
     };
   }

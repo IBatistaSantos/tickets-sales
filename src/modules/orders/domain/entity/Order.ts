@@ -19,6 +19,7 @@ export enum OrderStatus {
 
 interface OrderTotal {
   amount: number;
+  amountItems: number;
   discount: number;
   tax: number;
 }
@@ -33,6 +34,7 @@ interface OrderPayment {
 interface OrderProps extends BaseEntityProps {
   cartId: string;
   ownerId: string;
+  total: OrderTotal;
   customer: OrderCustomerProps;
   billingAddress: BillingAddressProps;
   items: OrderItemProps[];
@@ -62,9 +64,17 @@ export class Order extends BaseEntity {
     this._statusOrder = props.statusOrder || OrderStatus.PENDING;
     this._items = props.items.map((item) => new OrderItem(item));
     this._payment = props.payment;
-    this._total = this.calculateTotal();
+    this._total = props.total;
 
     this.validate();
+  }
+
+  static create(props: Omit<OrderProps, "total">) {
+    const total = this.calculateTotal(props.items, 0, 0);
+    return new Order({
+      ...props,
+      total,
+    });
   }
 
   get customer() {
@@ -107,15 +117,22 @@ export class Order extends BaseEntity {
     return this._payment;
   }
 
-  private calculateTotal() {
-    const amount = this._items.reduce((acc, item) => {
+  private static calculateTotal(
+    items: OrderItemProps[],
+    discount: number,
+    tax: number
+  ) {
+    const amountItems = items.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0);
 
+    const amount = Number(amountItems - discount + tax).toFixed(2);
+
     return {
-      amount,
-      discount: 0,
-      tax: 0,
+      amountItems,
+      amount: Number(amount),
+      discount,
+      tax,
     };
   }
 
