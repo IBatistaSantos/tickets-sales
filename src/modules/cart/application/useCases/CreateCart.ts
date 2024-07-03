@@ -50,11 +50,23 @@ export class CreateCartUseCase {
       id: ticket.id,
       price: ticket.price.price,
     }));
-    
+
     const total = cart.calculateTotal(listPrice);
+
+    const ticketMap = new Map(listTickets.map((ticket) => [ticket.id, ticket]));
+
+    const cartItem = cart.items.map((item) => {
+      const ticket = ticketMap.get(item.itemId);
+      return {
+        ...item.toJSON(),
+        name: ticket?.name,
+        price: ticket?.price.price,
+      };
+    });
 
     return {
       ...cart.toJSON(),
+      cartItem,
       total,
     };
   }
