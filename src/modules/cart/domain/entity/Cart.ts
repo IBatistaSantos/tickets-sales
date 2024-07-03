@@ -9,6 +9,11 @@ export enum CartStatus {
   CHECKED_OUT = "CHECKED_OUT",
 }
 
+interface ListPrices {
+  id: string;
+  price: number;
+}
+
 export interface CartUpdateData {
   items?: CartItemProps[];
   customer?: CartCustomerProps;
@@ -85,6 +90,17 @@ export class Cart extends BaseEntity {
 
     this._items.forEach((item) => item.checkout());
     this._statusCart = CartStatus.CHECKED_OUT;
+  }
+
+  calculateTotal(listTicket: ListPrices[]) {
+    const ticketPriceMap = new Map(
+      listTicket.map((ticket) => [ticket.id, ticket.price])
+    );
+    return this._items.reduce((acc, item) => {
+      const price = ticketPriceMap.get(item.itemId);
+      if (!price) return acc;
+      return acc + price * item.quantity;
+    }, 0);
   }
 
   private validate() {

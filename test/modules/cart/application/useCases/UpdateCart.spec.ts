@@ -42,6 +42,10 @@ describe("UpdateCart", () => {
           ],
         },
       ],
+      customer: {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+      },
     };
 
     const result = await useCase.execute(cartId, data);
@@ -50,6 +54,7 @@ describe("UpdateCart", () => {
     expect(result.items[0].quantity).toBe(1);
     expect(result.items[0].users.length).toBe(1);
     expect(result.items[0].users[0].email).toBe(data.items[0].users[0].email);
+    expect(result.total).toBe(100);
   });
 
   it("should throw an error when cart not found", async () => {
@@ -66,6 +71,10 @@ describe("UpdateCart", () => {
           ],
         },
       ],
+      customer: {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+      },
     };
 
     await expect(

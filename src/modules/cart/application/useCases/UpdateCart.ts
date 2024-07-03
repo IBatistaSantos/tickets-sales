@@ -13,8 +13,8 @@ interface InputItem {
 }
 
 interface UpdateCartDTO {
-  items?: InputItem[];
-  customer?: CartCustomerProps;
+  items: InputItem[];
+  customer: CartCustomerProps;
   marketingData?: Record<string, string>;
 }
 
@@ -25,20 +25,26 @@ export class UpdateCartUseCase {
     const cart = await this.repository.findById(cartId);
     if (!cart) throw new CartNotFoundException();
 
-    if (data.items) {
-      const ticketIds = data.items.map((item) => item.itemId);
-      const listTickets = await this.repository.getTicketsByIds(ticketIds);
-      const listItemCart = CartItem.createMany(data.items, listTickets);
-      cart.updateItems(listItemCart);
-    }
+    const ticketIds = data.items?.map((item) => item.itemId);
+    const listTickets = await this.repository.getTicketsByIds(ticketIds);
+    const listItemCart = CartItem.createMany(data.items, listTickets);
+    cart.updateItems(listItemCart);
 
     cart.update({
-     customer: data.customer,
-     marketingData: data.marketingData,
-    })
+      customer: data.customer,
+      marketingData: data.marketingData,
+    });
+
+    const listPrice = listTickets.map((ticket) => ({
+      id: ticket.id,
+      price: ticket.price.price,
+    }))
 
     await this.repository.update(cart);
-
-    return cart.toJSON();
+    const total = cart.calculateTotal(listPrice);
+    return {
+      ...cart.toJSON(),
+      total,
+    }
   }
 }

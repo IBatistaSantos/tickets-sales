@@ -35,7 +35,7 @@ export class MockCartRepository implements CartRepository {
             id: ticketId,
             name: faker.commerce.productName(),
             price: {
-              price: faker.number.float(),
+              price: 100,
             },
             ownerId: faker.database.mongodbObjectId(),
             stock: {

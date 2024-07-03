@@ -30,6 +30,7 @@ describe("CreateCart", () => {
 
     expect(cart.ownerId).toBe(input.ownerId);
     expect(cart.items[0].quantity).toBe(input.items[0].quantity);
+    expect(cart.total).toBe(200);
   });
 
   it("should throw an error if owner not found", async () => {

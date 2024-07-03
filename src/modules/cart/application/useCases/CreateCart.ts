@@ -46,6 +46,16 @@ export class CreateCartUseCase {
 
     await this.cartRepository.save(cart);
 
-    return cart.toJSON();
+    const listPrice = listTickets.map((ticket) => ({
+      id: ticket.id,
+      price: ticket.price.price,
+    }));
+    
+    const total = cart.calculateTotal(listPrice);
+
+    return {
+      ...cart.toJSON(),
+      total,
+    };
   }
 }
