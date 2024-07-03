@@ -23,7 +23,6 @@ export class UpdatePositionTicket {
 
     const updatedTickets = Array.from(ticketMap.values());
 
-    console.log(updatedTickets);
     await this.repository.updateMany(updatedTickets);
   }
 }

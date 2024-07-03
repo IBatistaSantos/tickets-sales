@@ -5,8 +5,6 @@ import { adaptRoute } from "@main/infrastructure/adapters/routes/adapters/Elysia
 export default function orderRoutes(app: Elysia): Elysia {
   const createOrderController = makeCreateOrderControllerFactory();
 
-  console.log("[orderRoutes] POST /orders");
-
   app.group("/orders", (group) => {
     group.post("/", adaptRoute(createOrderController));
     return group;

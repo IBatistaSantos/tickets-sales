@@ -9,10 +9,6 @@ export default function cartRoutes(app: Elysia): Elysia {
   const findCartController = makeFindCartController();
   const updateCartController = makeUpdateCartController();
 
-  console.log("[cartRoutes] POST /carts");
-  console.log("[cartRoutes] GET /carts/:cartId");
-  console.log("[cartRoutes] PUT /carts/:cartId");
-  
   app.group("/carts", (group) => {
     group.post("/", adaptRoute(createCartController));
     group.get("/:cartId", adaptRoute(findCartController));
