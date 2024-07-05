@@ -24,6 +24,21 @@ enum TicketSalesStatus {
   PAUSED
 }
 
+enum DiscountType {
+  PERCENTAGE
+  INTEGER
+}
+
+enum CouponStatus {
+  AVAILABLE
+  PAUSED
+}
+
+enum AvailabilityType {
+  UNLIMITED
+  LIMITED
+}
+
 enum Currency {
   BRL
   USD
@@ -221,4 +236,24 @@ model OrderBillingAddress {
   order        Order   @relation(fields: [orderId], references: [id])
 
   @@map("order_billing_addresses")
+}
+
+model Coupon {
+  id                String           @id @default(uuid())
+  code              String
+  ownerId           String
+  description       String?
+  statusCoupon      CouponStatus     @default(AVAILABLE)
+  enforceInTickets  String[]         @default([])
+  discountType      DiscountType
+  discountValue     Int
+  usedQuantity      Int              @default(0)
+  availabilityType  AvailabilityType
+  availabilityTotal Int?
+  availabilityQty   Int?
+  status            Status           @default(ACTIVE)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@map("coupons")
 }
