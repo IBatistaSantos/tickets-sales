@@ -14,6 +14,39 @@ export class PrismaCouponRepository implements CouponRepository {
     this.client = new PrismaClient();
   }
 
+  async findById(id: string): Promise<Coupon | null> {
+    const coupon = await this.client.coupon.findFirst({
+      where: {
+        id,
+        status: "ACTIVE",
+      },
+    });
+
+    if (!coupon) return null;
+
+    return new Coupon({
+      code: coupon.code,
+      availability: {
+        type: coupon.availabilityType,
+        quantity: coupon.availabilityQty || undefined,
+        total: coupon.availabilityTotal || undefined,
+      },
+      discount: {
+        type: coupon.discountType,
+        value: coupon.discountValue,
+      },
+      ownerId: coupon.ownerId,
+      createdAt: coupon.createdAt,
+      description: coupon.description || "",
+      enforceInTickets: coupon.enforceInTickets,
+      id: coupon.id,
+      statusCoupon: coupon.statusCoupon,
+      status: coupon.status,
+      updatedAt: coupon.updatedAt,
+      usedQuantity: coupon.usedQuantity,
+    });
+  }
+
   async findByCode(code: string, ownerId: string): Promise<Coupon | null> {
     const coupon = await this.client.coupon.findFirst({
       where: {

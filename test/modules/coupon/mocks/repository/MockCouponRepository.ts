@@ -3,6 +3,7 @@ import { Coupon } from "@modules/coupon/domain/entity/Coupon";
 import { Ticket } from "@modules/tickets/domain/entity/Ticket";
 
 export class MockCouponRepository implements CouponRepository {
+  
   private coupons: Coupon[] = [];
 
   async findByCode(code: string, ownerId: string): Promise<Coupon | null> {
@@ -11,6 +12,10 @@ export class MockCouponRepository implements CouponRepository {
         (coupon) => coupon.code === code && coupon.ownerId === ownerId
       ) || null
     );
+  }
+
+  async findById(id: string): Promise<Coupon | null> {
+    return this.coupons.find((coupon) => coupon.id === id) || null;
   }
 
   async listTicketByIds(ids: string[]): Promise<Ticket[]> {
