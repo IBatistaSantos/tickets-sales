@@ -21,10 +21,6 @@ export class PrismaTicketRepository implements TicketRepository {
         ownerId,
         status: "ACTIVE",
       },
-      include: {
-        price: true,
-        stock: true,
-      },
       orderBy: { position: "asc" },
     });
 
@@ -38,13 +34,13 @@ export class PrismaTicketRepository implements TicketRepository {
         description: ticket.description || "",
         ownerId: ticket.ownerId,
         price: {
-          price: ticket.price.price,
-          currency: ticket.price.currency as Currency,
+          price: ticket.priceValue,
+          currency: ticket.currency as Currency,
         },
         stock: {
-          total: ticket.stock.total,
-          type: ticket.stock.type,
-          available: ticket.stock.available,
+          total: ticket.stockTotal,
+          type: ticket.stockType,
+          available: ticket.stockAvailable,
         },
         saleStatus: ticket.saleStatus as TicketSaleStatus,
         accessType: ticket.accessType,
@@ -64,11 +60,7 @@ export class PrismaTicketRepository implements TicketRepository {
       where: {
         ...query,
         status: "ACTIVE",
-      },
-      include: {
-        price: true,
-        stock: true,
-      },
+      }
      })
      
       if (!ticket) return null;
@@ -79,13 +71,13 @@ export class PrismaTicketRepository implements TicketRepository {
       description: ticket.description || "",
       ownerId: ticket.ownerId,
       price: {
-        price: ticket.price.price,
-        currency: ticket.price.currency as Currency,
+        price: ticket.priceValue,
+        currency: ticket.currency as Currency,
       },
       stock: {
-        total: ticket.stock.total,
-        type: ticket.stock.type,
-        available: ticket.stock.available,
+        total: ticket.stockTotal,
+        type: ticket.stockType,
+        available: ticket.stockAvailable,
       },
       saleStatus: ticket.saleStatus as TicketSaleStatus,
       accessType: ticket.accessType,
@@ -104,11 +96,7 @@ export class PrismaTicketRepository implements TicketRepository {
       where: {
         id: ticketId,
         status: "ACTIVE",
-      },
-      include: {
-        price: true,
-        stock: true,
-      },
+      }
     });
 
     if (!ticket) return null;
@@ -119,13 +107,13 @@ export class PrismaTicketRepository implements TicketRepository {
       description: ticket.description || "",
       ownerId: ticket.ownerId,
       price: {
-        price: ticket.price.price,
-        currency: ticket.price.currency as Currency,
+        price: ticket.priceValue,
+        currency: ticket.currency as Currency,
       },
       stock: {
-        total: ticket.stock.total,
-        type: ticket.stock.type,
-        available: ticket.stock.available,
+        total: ticket.stockTotal,
+        type: ticket.stockType,
+        available: ticket.stockAvailable,
       },
       saleStatus: ticket.saleStatus as TicketSaleStatus,
       accessType: ticket.accessType,
@@ -148,19 +136,11 @@ export class PrismaTicketRepository implements TicketRepository {
           data: {
             name: ticket.name,
             description: ticket.description || "",
-            price: {
-              update: {
-                price: ticket.price.price,
-                currency: ticket.price.currency as CurrencyPrisma,
-              },
-            },
-            stock: {
-              update: {
-                total: ticket.stock.total,
-                type: ticket.stock.type,
-                available: ticket.stock.available,
-              },
-            },
+            priceValue: ticket.price.price,
+            currency: ticket.price.currency as CurrencyPrisma,
+            stockAvailable: ticket.stock.available,
+            stockTotal: ticket.stock.total,
+            stockType: ticket.stock.type,
             updatedAt: ticket.updatedAt,
             status: ticket.status,
             createdAt: ticket.createdAt,
@@ -185,10 +165,6 @@ export class PrismaTicketRepository implements TicketRepository {
         ownerId,
         status: "ACTIVE",
       },
-      include: {
-        price: true,
-        stock: true,
-      },
       orderBy: { position: "asc" },
     });
 
@@ -200,14 +176,17 @@ export class PrismaTicketRepository implements TicketRepository {
         name: ticket.name,
         description: ticket.description || "",
         ownerId: ticket.ownerId,
+        updatedAt: ticket.updatedAt,
+        createdAt: ticket.createdAt,
+        status: ticket.status as Status,
         price: {
-          price: ticket.price.price,
-          currency: ticket.price.currency as Currency,
+          price: ticket.priceValue,
+          currency: ticket.currency as Currency,
         },
         stock: {
-          total: ticket.stock.total,
-          type: ticket.stock.type,
-          available: ticket.stock.available,
+          total: ticket.stockTotal,
+          type: ticket.stockType,
+          available: ticket.stockAvailable,
         },
         saleStatus: ticket.saleStatus as TicketSaleStatus,
         accessType: ticket.accessType,
@@ -225,11 +204,7 @@ export class PrismaTicketRepository implements TicketRepository {
         name,
         ownerId,
         status: "ACTIVE",
-      },
-      include: {
-        price: true,
-        stock: true,
-      },
+      }
     });
 
     if (!ticket) return null;
@@ -239,14 +214,17 @@ export class PrismaTicketRepository implements TicketRepository {
       name: ticket.name,
       description: ticket.description || "",
       ownerId: ticket.ownerId,
+      createdAt: ticket.createdAt,
+      updatedAt: ticket.updatedAt,
+      status: ticket.status as Status,
       price: {
-        price: ticket.price.price,
-        currency: ticket.price.currency as Currency,
+        price: ticket.priceValue,
+        currency: ticket.currency as Currency,
       },
       stock: {
-        total: ticket.stock.total,
-        type: ticket.stock.type,
-        available: ticket.stock.available,
+        total: ticket.stockTotal,
+        type: ticket.stockType,
+        available: ticket.stockAvailable,
       },
       saleStatus: ticket.saleStatus as TicketSaleStatus,
       accessType: ticket.accessType,
@@ -265,7 +243,6 @@ export class PrismaTicketRepository implements TicketRepository {
         hidden: false,
         saleStatus: "AVAILABLE",
       },
-      include: { price: true, stock: true },
       orderBy: { position: "asc" },
     })
 
@@ -276,15 +253,18 @@ export class PrismaTicketRepository implements TicketRepository {
         id: ticket.id,
         name: ticket.name,
         description: ticket.description || "",
+        createdAt: ticket.createdAt,
+        status: ticket.status,
+        updatedAt: ticket.updatedAt,
         ownerId: ticket.ownerId,
         price: {
-          price: ticket.price.price,
-          currency: ticket.price.currency as Currency,
+          price: ticket.priceValue,
+          currency: ticket.currency as Currency,
         },
         stock: {
-          total: ticket.stock.total,
-          type: ticket.stock.type,
-          available: ticket.stock.available,
+          total: ticket.stockTotal,
+          type: ticket.stockType,
+          available: ticket.stockAvailable,
         },
         saleStatus: ticket.saleStatus as TicketSaleStatus,
         accessType: ticket.accessType,
@@ -317,28 +297,17 @@ export class PrismaTicketRepository implements TicketRepository {
   async save(ticket: Ticket): Promise<void> {
     try {
       await this.client.$transaction(async (transaction) => {
-        const price = await transaction.ticketPrice.create({
-          data: {
-            price: ticket.price.price,
-            currency: ticket.price.currency as CurrencyPrisma,
-          },
-        });
-        const stock = await transaction.ticketStock.create({
-          data: {
-            total: ticket.stock.total,
-            type: ticket.stock.type,
-            available: ticket.stock.available,
-          },
-        });
-
         await transaction.ticket.create({
           data: {
             id: ticket.id,
             name: ticket.name,
             description: ticket.description || "",
             ownerId: ticket.ownerId,
-            priceId: price.id,
-            stockId: stock.id,
+            priceValue: ticket.price.price,
+            currency: ticket.price.currency as CurrencyPrisma,
+            stockAvailable: ticket.stock.available,
+            stockTotal: ticket.stock.total,
+            stockType: ticket.stock.type,
             createdAt: ticket.createdAt,
             status: ticket.status as Status,
             updatedAt: ticket.updatedAt,
@@ -369,19 +338,11 @@ export class PrismaTicketRepository implements TicketRepository {
               data: {
                 name: ticket.name,
                 description: ticket.description || "",
-                price: {
-                  update: {
-                    price: ticket.price.price,
-                    currency: ticket.price.currency as CurrencyPrisma,
-                  },
-                },
-                stock: {
-                  update: {
-                    total: ticket.stock.total,
-                    type: ticket.stock.type,
-                    available: ticket.stock.available,
-                  },
-                },
+                priceValue: ticket.price.price,
+                currency: ticket.price.currency as CurrencyPrisma,
+                stockAvailable: ticket.stock.available,
+                stockTotal: ticket.stock.total,
+                stockType: ticket.stock.type,
                 updatedAt: ticket.updatedAt,
                 status: ticket.status as Status,
                 createdAt: ticket.createdAt,

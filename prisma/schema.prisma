@@ -69,46 +69,28 @@ model Owner {
 }
 
 model Ticket {
-  id           String            @id @default(cuid())
-  name         String
-  description  String?
-  ownerId      String
-  accessType   AccessType        @default(DIGITAL)
-  saleStatus   TicketSalesStatus @default(AVAILABLE)
-  usedQuantity Int               @default(0)
-  position     Int               @default(0)
-  hidden       Boolean           @default(false)
-  categoryId   String?
-  status       Status            @default(ACTIVE)
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  priceId      String
-  stockId      String
+  id             String            @id @default(cuid())
+  name           String
+  description    String?
+  ownerId        String
+  accessType     AccessType        @default(DIGITAL)
+  saleStatus     TicketSalesStatus @default(AVAILABLE)
+  usedQuantity   Int               @default(0)
+  position       Int               @default(0)
+  hidden         Boolean           @default(false)
+  categoryId     String?
+  status         Status            @default(ACTIVE)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  priceValue     Int               @default(0)
+  stockTotal     Int               @default(0)
+  stockAvailable Int               @default(0)
+  stockType      TicketStockType   @default(UNLIMITED)
+  currency       Currency          @default(BRL)
 
-  owner Owner       @relation(fields: [ownerId], references: [id])
-  price TicketPrice @relation(fields: [priceId], references: [id])
-  stock TicketStock @relation(fields: [stockId], references: [id])
+  owner Owner @relation(fields: [ownerId], references: [id])
 
   @@map("tickets")
-}
-
-model TicketPrice {
-  id       String   @id @default(cuid())
-  price    Int      @default(0)
-  currency Currency @default(BRL)
-  Ticket   Ticket[]
-
-  @@map("ticket_prices")
-}
-
-model TicketStock {
-  id        String          @id @default(cuid())
-  total     Int             @default(0)
-  available Int             @default(0)
-  type      TicketStockType @default(UNLIMITED)
-  Ticket    Ticket[]
-
-  @@map("ticket_stocks")
 }
 
 model Cart {

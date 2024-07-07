@@ -231,10 +231,6 @@ export class PrismaCartRepository implements CartRepository {
         },
         status: "ACTIVE",
       },
-      include: {
-        price: true,
-        stock: true,
-      },
     });
 
     if (!listTickets || !listTickets.length) return [];
@@ -246,13 +242,13 @@ export class PrismaCartRepository implements CartRepository {
         description: ticket.description || "",
         ownerId: ticket.ownerId,
         stock: {
-          type: ticket.stock.type as any,
-          available: ticket.stock.available,
-          total: ticket.stock.total,
+          type: ticket.stockType as any,
+          available: ticket.stockAvailable,
+          total: ticket.stockTotal,
         },
         price: {
-          price: ticket.price.price,
-          currency: ticket.price.currency as Currency,
+          price: ticket.priceValue,
+          currency: ticket.currency as Currency,
         },
         accessType: ticket.accessType as any,
         categoryId: ticket.categoryId || "",

@@ -183,19 +183,11 @@ export class PrismaOrderRepository implements OrderRepository {
         data: {
           name: ticket.name,
           description: ticket.description || "",
-          price: {
-            update: {
-              price: ticket.price.price,
-              currency: ticket.price.currency as Currency,
-            },
-          },
-          stock: {
-            update: {
-              total: ticket.stock.total,
-              type: ticket.stock.type,
-              available: ticket.stock.available,
-            },
-          },
+          priceValue: ticket.price.price,
+          stockAvailable: ticket.stock.available,
+          currency: ticket.price.currency as Currency,
+          stockTotal: ticket.stock.total,
+          stockType: ticket.stock.type,
           updatedAt: ticket.updatedAt,
           status: ticket.status,
           createdAt: ticket.createdAt,
@@ -267,10 +259,6 @@ export class PrismaOrderRepository implements OrderRepository {
         },
         status: "ACTIVE",
       },
-      include: {
-        stock: true,
-        price: true,
-      },
     });
 
     if (!response || !response.length) {
@@ -293,13 +281,13 @@ export class PrismaOrderRepository implements OrderRepository {
           updatedAt: ticket.updatedAt,
           usedQuantity: ticket.usedQuantity,
           stock: {
-            total: ticket.stock.total,
-            available: ticket.stock.available,
-            type: ticket.stock.type,
+            total: ticket.stockTotal,
+            available: ticket.stockAvailable,
+            type: ticket.stockType,
           },
           price: {
-            price: ticket.price.price,
-            currency: ticket.price.currency as Currency,
+            price: ticket.priceValue,
+            currency: ticket.currency as Currency,
           },
           status: ticket.status,
         })

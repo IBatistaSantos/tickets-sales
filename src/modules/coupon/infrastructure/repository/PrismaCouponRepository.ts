@@ -57,10 +57,6 @@ export class PrismaCouponRepository implements CouponRepository {
         ownerId,
         status: "ACTIVE",
       },
-      include: {
-        price: true,
-        stock: true,
-      },
     });
 
     if (!tickets || !tickets.length) return [];
@@ -79,13 +75,13 @@ export class PrismaCouponRepository implements CouponRepository {
           saleStatus: ticket.saleStatus as TicketSaleStatus,
           position: ticket.position,
           stock: {
-            type: ticket.stock.type,
-            available: ticket.stock.available,
-            total: ticket.stock.total,
+            type: ticket.stockType,
+            available: ticket.stockAvailable,
+            total: ticket.stockTotal,
           },
           price: {
-            price: ticket.price.price,
-            currency: ticket.price.currency as Currency,
+            price: ticket.priceValue,
+            currency: ticket.currency as Currency,
           },
           ownerId: ticket.ownerId,
           createdAt: ticket.createdAt,
