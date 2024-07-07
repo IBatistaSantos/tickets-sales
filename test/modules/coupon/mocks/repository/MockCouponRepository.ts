@@ -3,7 +3,6 @@ import { Coupon } from "@modules/coupon/domain/entity/Coupon";
 import { Ticket } from "@modules/tickets/domain/entity/Ticket";
 
 export class MockCouponRepository implements CouponRepository {
-  
   private coupons: Coupon[] = [];
 
   async findByCode(code: string, ownerId: string): Promise<Coupon | null> {
@@ -33,6 +32,10 @@ export class MockCouponRepository implements CouponRepository {
           },
         })
     );
+  }
+
+  async listByOwnerId(ownerId: string): Promise<Coupon[]> {
+    return this.coupons.filter((coupon) => coupon.ownerId === ownerId);
   }
 
   async save(coupon: Coupon): Promise<void> {

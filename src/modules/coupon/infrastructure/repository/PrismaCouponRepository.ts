@@ -13,6 +13,7 @@ export class PrismaCouponRepository implements CouponRepository {
   constructor() {
     this.client = new PrismaClient();
   }
+  
 
   async findById(id: string): Promise<Coupon | null> {
     const coupon = await this.client.coupon.findFirst({
@@ -79,6 +80,42 @@ export class PrismaCouponRepository implements CouponRepository {
       updatedAt: coupon.updatedAt,
       usedQuantity: coupon.usedQuantity,
     });
+  }
+
+  async listByOwnerId(ownerId: string): Promise<Coupon[]> {
+    const coupons = await this.client.coupon.findMany({
+      where: {
+        ownerId,
+        status: "ACTIVE",
+      },
+    });
+
+    if (!coupons || !coupons.length) return [];
+
+    return coupons.map(
+      (coupon) =>
+        new Coupon({
+          code: coupon.code,
+          availability: {
+            type: coupon.availabilityType,
+            quantity: coupon.availabilityQty || undefined,
+            total: coupon.availabilityTotal || undefined,
+          },
+          discount: {
+            type: coupon.discountType,
+            value: coupon.discountValue,
+          },
+          ownerId: coupon.ownerId,
+          createdAt: coupon.createdAt,
+          description: coupon.description || "",
+          enforceInTickets: coupon.enforceInTickets,
+          id: coupon.id,
+          statusCoupon: coupon.statusCoupon,
+          status: coupon.status,
+          updatedAt: coupon.updatedAt,
+          usedQuantity: coupon.usedQuantity,
+        })
+    );
   }
 
   async listTicketByIds(ids: string[], ownerId: string): Promise<Ticket[]> {
