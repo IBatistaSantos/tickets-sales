@@ -7,6 +7,8 @@ import { CartCustomerProps } from "@modules/cart/domain/entity/valueObject/CartC
 import { ItemEmptyException } from "@modules/cart/domain/errors/ItemEmptyException";
 import { OwnerNotFoundException } from "@modules/owner/domain/errors/OwnerNotFound";
 import { CartRepository } from "../repository/CartRepository";
+import { Ticket } from "@modules/tickets/domain/entity/Ticket";
+import { PriceItemResponse } from "@core/domain/entity/PriceCalculator";
 
 interface InputItem {
   itemId: string;
@@ -30,13 +32,13 @@ export class CreateCartUseCase {
     const owner = await this.cartRepository.getOwnerId(ownerId);
     if (!owner) throw new OwnerNotFoundException();
 
-    const ticketIds = items.map((item) => item.itemId);
-    if (!ticketIds.length) throw new ItemEmptyException();
+    if (!items.length) throw new ItemEmptyException();
 
-    const listTickets = await this.cartRepository.getTicketsByIds(ticketIds);
+    const listTickets = await this.cartRepository.getTicketsByIds(
+      items.map((item) => item.itemId)
+    );
 
     const listItemCart = CartItem.createMany(items, listTickets);
-
     const cart = new Cart({
       ownerId,
       items: listItemCart,
@@ -44,30 +46,46 @@ export class CreateCartUseCase {
       marketingData,
     });
 
-    await this.cartRepository.save(cart);
-
     const listPrice = listTickets.map((ticket) => ({
       id: ticket.id,
       price: ticket.price.price,
     }));
 
-    const total = cart.calculateTotal(listPrice);
-
+    const { totals, items: itemWithPrice } = cart.calculateTotal(listPrice);
+    const itemPriceMap = new Map(
+      itemWithPrice.map((item) => [item.itemId, item])
+    );
     const ticketMap = new Map(listTickets.map((ticket) => [ticket.id, ticket]));
+    const cartItems = this.buildCartItems(
+      listItemCart,
+      ticketMap,
+      itemPriceMap
+    );
 
-    const cartItem = cart.items.map((item) => {
-      const ticket = ticketMap.get(item.itemId);
-      return {
-        ...item.toJSON(),
-        name: ticket?.name,
-        price: ticket?.price.price,
-      };
-    });
+    await this.cartRepository.save(cart);
 
     return {
       ...cart.toJSON(),
-      cartItem,
-      total,
+      items: cartItems,
+      total: totals.amount,
     };
+  }
+
+  private buildCartItems(
+    listItemCart: CartItem[],
+    ticketMap: Map<string, Ticket>,
+    itemPriceMap: Map<string, PriceItemResponse>
+  ) {
+    return listItemCart.map((item) => {
+      const ticket = ticketMap.get(item.itemId);
+      const itemWithPrice = itemPriceMap.get(item.itemId);
+
+      return {
+        name: ticket?.name,
+        ...itemWithPrice,
+        quantity: item.quantity,
+        users: item.users,
+      };
+    });
   }
 }

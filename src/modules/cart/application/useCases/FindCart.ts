@@ -11,27 +11,32 @@ export class FindCartUseCase {
     const ticketIds = cart.items.map((item) => item.itemId);
 
     const listTickets = await this.repository.getTicketsByIds(ticketIds);
-    const ticketMap = new Map(listTickets.map((ticket) => [ticket.id, ticket]));
-
-    const cartItem = cart.items.map((item) => {
-      const ticket = ticketMap.get(item.itemId);
-      return {
-        name: ticket?.name,
-        price: ticket?.price.price,
-        ...item.toJSON(),
-      };
-    });
+    
 
     const listPrices = listTickets.map((ticket) => ({
       id: ticket.id,
       price: ticket.price.price,
     }));
-    const total = cart.calculateTotal(listPrices);
+
+    const { items, totals} = cart.calculateTotal(listPrices);
+
+    const ticketMap = new Map(items.map((ticket) => [ticket.itemId, ticket]));
+
+    const cartItem = cart.items.map((item) => {
+      const ticket = ticketMap.get(item.itemId);
+      return {
+        name: listTickets.find((t) => t.id === item.itemId)?.name,
+        ...ticket,
+        ...item.toJSON(),
+      };
+    });
+
+
 
     return {
       ...cart.toJSON(),
       items: cartItem,
-      total,
+      total: totals.amount,
     };
   }
 }

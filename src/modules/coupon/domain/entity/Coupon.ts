@@ -7,6 +7,7 @@ import {
   AvailabilityCoupon,
   AvailabilityCouponProps,
 } from "../valueObject/AvailabilityCoupon";
+import { ValidationError } from "@core/domain/errors/ValidationError";
 
 type CouponStatus = "AVAILABLE" | "PAUSED";
 
@@ -82,6 +83,12 @@ export class Coupon extends BaseEntity {
 
   get statusCoupon(): CouponStatus {
     return this._statusCoupon;
+  }
+
+  canUsed() {
+    if (this._statusCoupon !== "AVAILABLE") {
+      throw new ValidationError("Coupon is not available");
+    }
   }
 
   private validate() {

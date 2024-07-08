@@ -5,6 +5,8 @@ import {
   CartItem,
   CartUser,
 } from "@modules/cart/domain/entity/valueObject/CarItem";
+import { Ticket } from "@modules/tickets/domain/entity/Ticket";
+import { PriceItemResponse } from "@core/domain/entity/PriceCalculator";
 
 interface InputItem {
   itemId: string;
@@ -25,8 +27,9 @@ export class UpdateCartUseCase {
     const cart = await this.repository.findById(cartId);
     if (!cart) throw new CartNotFoundException();
 
-    const ticketIds = data.items?.map((item) => item.itemId);
+    const ticketIds = data.items.map((item) => item.itemId);
     const listTickets = await this.repository.getTicketsByIds(ticketIds);
+
     const listItemCart = CartItem.createMany(data.items, listTickets);
     cart.updateItems(listItemCart);
 
@@ -35,29 +38,48 @@ export class UpdateCartUseCase {
       marketingData: data.marketingData,
     });
 
-    const listPrice = listTickets.map((ticket) => ({
-      id: ticket.id,
-      price: ticket.price.price,
-    }));
+    const listPrice = this.buildListPrice(listTickets);
+    const { items, totals } = cart.calculateTotal(listPrice);
+
+    const cartItems = this.buildCartItems(cart.items, listTickets, items);
 
     await this.repository.update(cart);
-    const total = cart.calculateTotal(listPrice);
-
-    const ticketMap = new Map(listTickets.map((ticket) => [ticket.id, ticket]));
-
-    const cartItem = cart.items.map((item) => {
-      const ticket = ticketMap.get(item.itemId);
-      return {
-        ...item.toJSON(),
-        name: ticket?.name,
-        price: ticket?.price.price,
-      };
-    });
 
     return {
       ...cart.toJSON(),
-      items: cartItem,
-      total,
+      items: cartItems,
+      total: totals.amount,
     };
+  }
+
+  private buildListPrice(tickets: Ticket[]) {
+    return tickets.map((ticket) => ({
+      id: ticket.id,
+      price: ticket.price.price,
+    }));
+  }
+
+  private buildCartItems(
+    items: CartItem[],
+    listTickets: Ticket[],
+    itemsWithPrice: PriceItemResponse[]
+  ) {
+    const itemPriceMap = new Map(
+      itemsWithPrice.map((item) => [item.itemId, item])
+    );
+
+    const ticketMap = new Map(listTickets.map((ticket) => [ticket.id, ticket]));
+
+    return items.map((item) => {
+      const ticket = ticketMap.get(item.itemId);
+      const priceItem = itemPriceMap.get(item.itemId);
+
+      return {
+        name: ticket?.name,
+        price: ticket?.price.price,
+        ...priceItem,
+        users: item.users,
+      };
+    });
   }
 }

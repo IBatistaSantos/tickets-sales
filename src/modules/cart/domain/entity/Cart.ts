@@ -3,6 +3,7 @@ import { ValidationError } from "@core/domain/errors/ValidationError";
 
 import { CartItem, CartItemProps } from "./valueObject/CarItem";
 import { CartCustomer, CartCustomerProps } from "./valueObject/CartCustomer";
+import { PriceCalculator } from "@core/domain/entity/PriceCalculator";
 
 export enum CartStatus {
   OPEN = "OPEN",
@@ -12,6 +13,15 @@ export enum CartStatus {
 interface ListPrices {
   id: string;
   price: number;
+}
+
+interface CouponCart {
+  code: string;
+  discount: {
+    type: "PERCENTAGE" | "INTEGER";
+    value: number;
+  };
+  enforceInTickets: string[];
 }
 
 export interface CartUpdateData {
@@ -25,6 +35,7 @@ interface CartProps extends BaseEntityProps {
   items: CartItemProps[];
   statusCart?: CartStatus;
   customer?: CartCustomerProps;
+  couponId?: string;
   marketingData?: Record<string, any>;
 }
 
@@ -34,6 +45,7 @@ export class Cart extends BaseEntity {
   private _customer: CartCustomer | null;
   private _statusCart: CartStatus;
   private _marketingData: Record<string, any> = {};
+  private _couponId: string | null;
 
   constructor(props: CartProps) {
     super(props);
@@ -42,6 +54,7 @@ export class Cart extends BaseEntity {
     this._customer = props.customer ? new CartCustomer(props.customer) : null;
     this._marketingData = props.marketingData || {};
     this._statusCart = props.statusCart || CartStatus.OPEN;
+    this._couponId = props.couponId || null;
 
     this.validate();
   }
@@ -92,15 +105,29 @@ export class Cart extends BaseEntity {
     this._statusCart = CartStatus.CHECKED_OUT;
   }
 
-  calculateTotal(listTicket: ListPrices[]) {
-    const ticketPriceMap = new Map(
-      listTicket.map((ticket) => [ticket.id, ticket.price])
-    );
-    return this._items.reduce((acc, item) => {
-      const price = ticketPriceMap.get(item.itemId);
-      if (!price) return acc;
-      return acc + price * item.quantity;
-    }, 0);
+  addCoupon(couponId: string) {
+    if (this._couponId) {
+      throw new ValidationError("Cart already has a coupon");
+    }
+
+    this._couponId = couponId;
+  }
+
+  removeCoupon() {
+    this._couponId = null;
+  }
+
+  calculateTotal(listTicket: ListPrices[], coupon?: CouponCart) {
+    const listItems = this._items.map((item) => {
+      const ticket = listTicket.find((ticket) => ticket.id === item.itemId);
+      return {
+        quantity: item.quantity,
+        itemId: item.itemId,
+        price: ticket?.price || 0,
+      };
+    });
+
+    return PriceCalculator.calculate(listItems, coupon);
   }
 
   private validate() {
