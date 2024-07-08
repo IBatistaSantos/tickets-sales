@@ -16,6 +16,7 @@ describe("PriceCalculator", () => {
     ]);
     expect(result.totals.items).toBe(50);
     expect(result.totals.discount).toBe(0);
+    expect(result.totals.amount).toBe(50);
     expect(result.totals.taxes).toBe(0);
   });
 
@@ -34,10 +35,11 @@ describe("PriceCalculator", () => {
 
     expect(result.items).toEqual([
       { price: 10, quantity: 1, itemId: "1", priceWithDiscount: 9 },
-      { price: 20, quantity: 2, itemId: "2", priceWithDiscount: 36 },
+      { price: 20, quantity: 2, itemId: "2", priceWithDiscount: 18 },
     ]);
     expect(result.totals.items).toBe(50);
     expect(result.totals.discount).toBe(5);
+    expect(result.totals.amount).toBe(45);
     expect(result.totals.taxes).toBe(0);
   });
 
@@ -56,6 +58,7 @@ describe("PriceCalculator", () => {
 
     expect(result.totals.items).toBe(50);
     expect(result.totals.discount).toBe(4);
+    expect(result.totals.amount).toBe(46);
     expect(result.totals.taxes).toBe(0);
   });
 });

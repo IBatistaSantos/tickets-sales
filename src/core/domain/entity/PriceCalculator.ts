@@ -39,9 +39,11 @@ export class PriceCalculator {
       return acc + total;
     }, 0);
     const taxes = 0;
-    const totalDiscount = this.calculateDiscount(items, coupon);
-    const amount = totalItems - totalDiscount + taxes;
+
     const listItems = this.calculateItemPrice(items, coupon);
+    const totalDiscount = this.calculateDiscount(listItems);
+
+    const amount = totalItems - totalDiscount + taxes;
 
     return {
       items: listItems,
@@ -54,46 +56,14 @@ export class PriceCalculator {
     };
   }
 
-  private static calculateDiscount(items: Item[], coupon?: Coupon): number {
-    let discount = 0;
+  private static calculateDiscount(listItems: PriceItemResponse[]): number {
+    return listItems.reduce((acc, item) => {
+      if (!item.priceWithDiscount) return acc;
 
-    if (!coupon) return discount;
+      const diff = (item.price - item.priceWithDiscount) * item.quantity;
 
-    const totalItems = items.reduce((acc, item) => {
-      const total = item.price * item.quantity;
-      return acc + total;
+      return acc + diff;
     }, 0);
-
-    const itemMap = new Map(items.map((item) => [item.itemId, item]));
-
-    const discountType = coupon.discount.type;
-    const specific = coupon.enforceInTickets.length;
-
-    if (!specific) {
-      const a =
-        discountType === "PERCENTAGE"
-          ? this.applyDiscountByPercentage(totalItems, coupon)
-          : this.applyDiscountByValue(totalItems, coupon);
-
-      return a;
-    }
-
-    coupon.enforceInTickets.forEach((itemId) => {
-      const item = itemMap.get(itemId);
-
-      if (!item) {
-        throw new ValidationError("Item not found");
-      }
-
-      const price = item.price * item.quantity;
-
-      discount +=
-        discountType === "PERCENTAGE"
-          ? this.applyDiscountByPercentage(price, coupon)
-          : this.applyDiscountByValue(price, coupon);
-    });
-
-    return discount;
   }
 
   private static calculateItemPrice(items: Item[], coupon?: Coupon) {
@@ -127,16 +97,19 @@ export class PriceCalculator {
       }
 
       const discountType = coupon.discount.type;
-      const price = itemData.price * itemData.quantity;
+      const price = itemData.price;
 
-      const discountValue =
-        discountType === "PERCENTAGE"
-          ? this.applyDiscountByPercentage(price, coupon)
-          : this.applyDiscountByValue(price, coupon);
+      if (discountType === "PERCENTAGE") {
+        return {
+          ...item,
+          priceWithDiscount:
+            price - this.applyDiscountByPercentage(price, coupon),
+        };
+      }
 
       return {
         ...item,
-        priceWithDiscount: price - discountValue,
+        priceWithDiscount: this.applyDiscountByValue(price, coupon),
       };
     });
   }

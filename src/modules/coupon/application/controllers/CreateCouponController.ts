@@ -54,7 +54,10 @@ export class CreateCouponController extends BaseController {
 
     this.validate(schema, input);
 
-    const result = await this.useCase.execute(input);
+    const result = await this.useCase.execute({
+      ...input,
+      code: input.code.trim().toUpperCase(),
+    });
 
     return {
       statusCode: 201,

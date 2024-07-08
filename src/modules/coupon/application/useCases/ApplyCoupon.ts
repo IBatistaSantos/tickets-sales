@@ -26,10 +26,13 @@ export class ApplyCouponUseCase {
     coupon.canUsed();
 
     const itemsWithPrices = await this.buildCartItems(cart);
+
     const { items, totals } = PriceCalculator.calculate(
       itemsWithPrices,
       coupon
     );
+
+    console.log(totals);
 
     cart.addCoupon(coupon.id);
     await this.repository.applyCouponInCart(cart);

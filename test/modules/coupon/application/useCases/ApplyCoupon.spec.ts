@@ -18,7 +18,7 @@ describe("ApplyCoupon", () => {
         code: "COUPON",
         ownerId: "OWNER_ID",
         discount: {
-          type: "PERCENTAGE",
+          type: "INTEGER",
           value: 10,
         },
         availability: {

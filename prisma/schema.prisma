@@ -103,7 +103,10 @@ model Cart {
   items         CartItem[]     @relation("CartItems")
   customerEmail String?
   customerName  String?
+  couponId      String?
   marketingData MarketingData?
+
+  coupon Coupon? @relation(fields: [couponId], references: [id])
 
   @@map("carts")
 }
@@ -236,6 +239,7 @@ model Coupon {
   status            Status           @default(ACTIVE)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
+  Cart              Cart[]
 
   @@map("coupons")
 }

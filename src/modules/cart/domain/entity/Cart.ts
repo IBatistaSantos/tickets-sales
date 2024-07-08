@@ -79,6 +79,14 @@ export class Cart extends BaseEntity {
     return this._marketingData;
   }
 
+  get couponId() {
+    if (this._statusCart === CartStatus.CHECKED_OUT) {
+      throw new ValidationError("Cart already checked out");
+    }
+
+    return this._couponId;
+  }
+
   update(data: Omit<Partial<CartUpdateData>, "items">) {
     if (data.customer) {
       this._customer = new CartCustomer(data.customer);
@@ -107,7 +115,7 @@ export class Cart extends BaseEntity {
 
   addCoupon(couponId: string) {
     if (this._couponId) {
-      throw new ValidationError("Cart already has a coupon");
+      this.removeCoupon()
     }
 
     this._couponId = couponId;
